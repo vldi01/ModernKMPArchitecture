@@ -2,10 +2,10 @@ import org.gradle.accessors.dm.LibrariesForLibs
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.get
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import kotlin.text.get
 
 class BaseMultiplatformPlugin : Plugin<Project> {
     lateinit var libs: LibrariesForLibs
@@ -21,7 +21,7 @@ class BaseMultiplatformPlugin : Plugin<Project> {
             }
             setupKotlin()
             setupAndroid()
-//            setupKsp()
+            setupKoin()
         }
     }
 
@@ -75,6 +75,46 @@ class BaseMultiplatformPlugin : Plugin<Project> {
             sourceSets.commonTest.dependencies {
                 implementation(kotlin("test"))
             }
+
+
         }
+    }
+
+    private fun Project.setupKoin() {
+        kotlinExtension {
+            sourceSets.commonMain.apply {
+                dependencies {
+                    implementation(project.dependencies.platform(libs.koin.bom))
+                    implementation(libs.koin.core)
+                    implementation(libs.koin.annotations)
+                }
+
+                configure {
+                    kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+                }
+            }
+        }
+
+        kspExtension {
+            arg("KOIN_CONFIG_CHECK", "true")
+        }
+
+        dependencies {
+            add("kspCommonMainMetadata", libs.koin.ksp.compiler)
+            add("kspAndroid", libs.koin.ksp.compiler)
+            add("kspIosArm64", libs.koin.ksp.compiler)
+            add("kspIosSimulatorArm64", libs.koin.ksp.compiler)
+            add("kspJvm", libs.koin.ksp.compiler)
+            add("kspJs", libs.koin.ksp.compiler)
+            add("kspWasmJs", libs.koin.ksp.compiler)
+        }
+
+//        tasks
+//            .matching {
+//                it.name.startsWith("ksp") && it.name != "kspCommonMainKotlinMetadata"
+//            }
+//            .configureEach {
+//                dependsOn("kspCommonMainKotlinMetadata")
+//            }
     }
 }

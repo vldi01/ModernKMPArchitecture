@@ -7,8 +7,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.shared.features.a.api)
-                implementation(projects.shared.features.a.impl)
+                implementation(projects.shared.features.b.api)
             }
         }
     }

@@ -17,15 +17,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.diachuk.modernarchitecture.features.a.FeatureA
 import modernarchitecture.shared.core.generated.resources.Res
 import modernarchitecture.shared.core.generated.resources.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.koinInject
 
 
 @Composable
 @Preview
 fun App() {
+    koinInject<FeatureA>().doA()
     MaterialTheme {
         var showContent by remember { mutableStateOf(false) }
         Column(
