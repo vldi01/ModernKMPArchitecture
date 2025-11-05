@@ -72,11 +72,12 @@ class BaseMultiplatformPlugin : Plugin<Project> {
                 binaries.executable()
             }
 
+            sourceSets.commonMain.dependencies {
+                implementation(libs.kotlinx.serialization)
+            }
             sourceSets.commonTest.dependencies {
                 implementation(kotlin("test"))
             }
-
-
         }
     }
 
@@ -108,13 +109,5 @@ class BaseMultiplatformPlugin : Plugin<Project> {
             add("kspJs", libs.koin.ksp.compiler)
             add("kspWasmJs", libs.koin.ksp.compiler)
         }
-
-//        tasks
-//            .matching {
-//                it.name.startsWith("ksp") && it.name != "kspCommonMainKotlinMetadata"
-//            }
-//            .configureEach {
-//                dependsOn("kspCommonMainKotlinMetadata")
-//            }
     }
 }

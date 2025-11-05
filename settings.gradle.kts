@@ -1,3 +1,5 @@
+import java.net.URI
+
 rootProject.name = "ModernArchitecture"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
@@ -25,6 +27,7 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
+        maven { url = URI.create("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
     }
 }
 
@@ -38,6 +41,7 @@ include(":shared:core")
 include(":shared:network")
 include(":shared:database")
 include(":shared:design")
+include(":shared:navigation")
 include(":shared:features:a:api")
 include(":shared:features:a:impl")
 include(":shared:features:b:api")
