@@ -96,9 +96,9 @@ class BaseMultiplatformPlugin : Plugin<Project> {
             }
         }
 
-        kspExtension {
-            arg("KOIN_CONFIG_CHECK", "true")
-        }
+//        kspExtension {
+//            arg("KOIN_CONFIG_CHECK", "true")
+//        }
 
         dependencies {
             add("kspCommonMainMetadata", libs.koin.ksp.compiler)

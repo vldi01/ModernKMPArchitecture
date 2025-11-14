@@ -7,8 +7,9 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.shared.features.a.api)
+                // Needed for DI
                 implementation(projects.shared.features.a.impl)
+                implementation(projects.shared.features.b.impl)
 
                 implementation(projects.shared.navigation)
             }

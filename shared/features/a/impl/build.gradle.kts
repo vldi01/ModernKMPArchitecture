@@ -8,6 +8,8 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.shared.features.a.api)
+                implementation(projects.shared.features.b.api)
+                implementation(projects.shared.navigation)
             }
         }
     }
