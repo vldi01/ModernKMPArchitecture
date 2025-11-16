@@ -1,0 +1,3 @@
+package com.diachuk.modernarchitecture.navigaion
+
+interface Destination
