@@ -7,7 +7,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.shared.navigation)
+                implementation(projects.shared.navigation.core)
             }
         }
     }

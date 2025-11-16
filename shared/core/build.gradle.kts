@@ -11,7 +11,7 @@ kotlin {
                 implementation(projects.shared.features.a.impl)
                 implementation(projects.shared.features.b.impl)
 
-                implementation(projects.shared.navigation)
+                implementation(projects.shared.navigation.core)
             }
         }
     }

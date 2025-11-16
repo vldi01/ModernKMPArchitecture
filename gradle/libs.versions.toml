@@ -15,6 +15,7 @@ junit = "4.13.2"
 kotlin = "2.2.21"
 kotlin-ksp = "2.3.0"
 kotlinx-coroutines = "1.10.2"
+kotlinpoet = "2.2.0"
 ktor = "3.3.1"
 logback = "1.5.20"
 koin-bom = "4.1.1"
@@ -60,6 +61,10 @@ androidx-navigation3-ui = { module = "org.jetbrains.androidx.navigation3:navigat
 androidx-lifecycle-viewmodel-navigation3 = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 
+# KSP & Code Generation
+ksp-symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "kotlin-ksp" }
+kotlinpoet-core = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
+kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoet" }
 
 [plugins]
 androidApplication = { id = "com.android.application" }

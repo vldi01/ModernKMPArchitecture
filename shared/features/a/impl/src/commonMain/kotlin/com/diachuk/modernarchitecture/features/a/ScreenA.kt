@@ -9,14 +9,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import com.diachuk.modernarchitecture.features.b.DestinationB
 import com.diachuk.modernarchitecture.navigaion.Navigator
+import com.diachuk.modernarchitecture.navigaion.Screen
 import org.koin.compose.koinInject
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun ScreenA(vm: AViewModel = koinViewModel()) {
+fun AScreen(destination: DestinationA, vm: AViewModel) {
     UiA()
 }
 

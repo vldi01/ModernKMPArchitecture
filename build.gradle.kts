@@ -11,3 +11,11 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ktor) apply false
 }
+
+
+
+//tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
+//    if (name.contains("ksp") && name != "kspCommonMainKotlinMetadata") {
+//        dependsOn("kspCommonMainKotlinMetadata")
+//    }
+//}

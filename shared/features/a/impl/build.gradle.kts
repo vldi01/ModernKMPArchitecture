@@ -9,8 +9,12 @@ kotlin {
             dependencies {
                 implementation(projects.shared.features.a.api)
                 implementation(projects.shared.features.b.api)
-                implementation(projects.shared.navigation)
+                implementation(projects.shared.navigation.core)
             }
         }
     }
+}
+
+dependencies {
+    addAllKsp(projects.shared.navigation.processor)
 }
