@@ -10,9 +10,15 @@ kotlin {
                 implementation(libs.ktor.clientCore)
             }
         }
+        jvmMain {
+            dependencies {
+                implementation(libs.ktor.serverCore)
+            }
+        }
     }
 }
 
 dependencies {
     add("kspCommonMainMetadata",projects.network.clientProcessor)
+    add("kspJvm",projects.network.serverProcessor)
 }

@@ -18,12 +18,12 @@ class AViewModel(
         println("[AViewModel] destination = ${destination}")
 
         viewModelScope.launch {
-            safeApiCall { userApi.getUser(1) }
+            safeApiCall { userApi.searchUsers("test", 10) }
                 .onSuccess {
-                    println("[AViewModel] user = ${it}")
+                    println(it)
                 }
                 .onFailure {
-                    println("[AViewModel] error = ${it}")
+                    println(it)
                 }
         }
     }
