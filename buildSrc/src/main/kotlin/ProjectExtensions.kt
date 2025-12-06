@@ -17,7 +17,7 @@ fun Project.kspExtension(block: KspExtension.() -> Unit) {
 }
 
 fun DependencyHandlerScope.addAllKsp(dependencyNotation: Any) {
-//    add("kspCommonMainMetadata", dependencyNotation)
+    add("kspCommonMainMetadata", dependencyNotation)
     add("kspAndroid", dependencyNotation)
     add("kspIosArm64", dependencyNotation)
     add("kspIosSimulatorArm64", dependencyNotation)

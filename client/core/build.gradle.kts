@@ -12,6 +12,8 @@ kotlin {
                 implementation(projects.client.features.b.impl)
 
                 implementation(projects.client.navigation.core)
+                implementation(projects.network.api)
+                implementation(projects.network.core)
             }
         }
     }

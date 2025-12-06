@@ -61,6 +61,7 @@ class ClientProcessor(
         val httpClient = HttpClient::class.asClassName()
 
         val classBuilder = TypeSpec.classBuilder(className)
+            .addModifiers(KModifier.INTERNAL)
             .addSuperinterface(interfaceDecl.asStarProjectedType().toTypeName())
             .primaryConstructor(
                 FunSpec.constructorBuilder()
