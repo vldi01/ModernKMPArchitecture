@@ -6,6 +6,7 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.get
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 class BaseMultiplatformPlugin : Plugin<Project> {
     lateinit var libs: LibrariesForLibs
@@ -81,6 +82,10 @@ class BaseMultiplatformPlugin : Plugin<Project> {
 
             sourceSets.commonMain {
                 kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+            }
+
+            project.tasks.matching { it.name.startsWith("ksp") && it.name != "kspCommonMainKotlinMetadata" }.configureEach {
+                dependsOn("kspCommonMainKotlinMetadata")
             }
         }
     }

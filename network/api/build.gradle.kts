@@ -14,5 +14,5 @@ kotlin {
 }
 
 dependencies {
-    addAllKsp(projects.network.clientProcessor)
+    add("kspCommonMainMetadata",projects.network.clientProcessor)
 }
