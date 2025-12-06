@@ -7,13 +7,13 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.shared.features.b.api)
-                implementation(projects.shared.navigation.core)
+                implementation(projects.client.features.b.api)
+                implementation(projects.client.navigation.core)
             }
         }
     }
 }
 
 dependencies {
-    addAllKsp(projects.shared.navigation.processor)
+    addAllKsp(projects.client.navigation.processor)
 }

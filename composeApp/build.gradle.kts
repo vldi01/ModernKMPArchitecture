@@ -47,7 +47,7 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(projects.shared.core)
+            implementation(projects.client.core)
         }
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)

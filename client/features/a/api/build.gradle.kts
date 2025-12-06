@@ -5,7 +5,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation(projects.shared.navigation.core)
+            implementation(projects.client.navigation.core)
         }
     }
 }

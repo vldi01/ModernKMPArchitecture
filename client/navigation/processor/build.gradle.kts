@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.shared.navigation.core)
+    implementation(projects.client.navigation.core)
     implementation(libs.ksp.symbol.processing.api)
     implementation(libs.kotlinpoet.core)
     implementation(libs.kotlinpoet.ksp)
