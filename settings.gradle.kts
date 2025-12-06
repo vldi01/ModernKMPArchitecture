@@ -37,6 +37,9 @@ plugins {
 
 include(":composeApp")
 include(":server")
+include(":network:api")
+include(":network:core")
+include(":network:processor")
 include(":client:core")
 include(":client:network")
 include(":client:database")
