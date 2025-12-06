@@ -1,9 +1,5 @@
 package com.diachuk.architecture
 
-//import com.diachuk.architecture.network.api.user.bindUserApi
-import com.diachuk.architecture.network.api.user.CreateUserRequest
-import com.diachuk.architecture.network.api.user.SearchResponse
-import com.diachuk.architecture.network.api.user.User
 import com.diachuk.architecture.network.api.user.UserApi
 import com.diachuk.architecture.network.api.user.bindUserApi
 import io.ktor.serialization.kotlinx.json.json
@@ -16,6 +12,10 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import kotlinx.serialization.json.Json
+import org.koin.ksp.generated.module
+import org.koin.ktor.ext.get
+import org.koin.ktor.plugin.Koin
+import org.koin.logger.slf4jLogger
 
 fun main() {
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
@@ -23,6 +23,11 @@ fun main() {
 }
 
 fun Application.module() {
+    install(Koin) {
+        slf4jLogger()
+        modules(ServerDiModule.module)
+    }
+
     install(ContentNegotiation) {
         json(Json {
             prettyPrint = true
@@ -36,25 +41,6 @@ fun Application.module() {
             call.respondText("Ktor: Hello World")
         }
 
-        bindUserApi(object : UserApi {
-            override suspend fun getUser(id: Long): User {
-                return User(id, "User $id", "user$id@example.com")
-            }
-
-            override suspend fun createUser(request: CreateUserRequest): User {
-                return User(123, request.name, request.email)
-            }
-
-            override suspend fun searchUsers(q: String, limit: Int): SearchResponse {
-                return SearchResponse(
-                    listOf(User(1, "Alice", "alice@example.com")),
-                    1
-                )
-            }
-
-            override suspend fun deleteUser(id: Long): String {
-                return "User $id deleted"
-            }
-        })
+        bindUserApi(get<UserApi>())
     }
 }

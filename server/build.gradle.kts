@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktor)
+    alias(libs.plugins.ksp)
     application
 }
 
@@ -21,6 +22,12 @@ dependencies {
     implementation(libs.ktor.serverNetty)
     implementation(libs.ktor.serverContentNegotiation)
     implementation(libs.ktor.serializationKotlinxJson)
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.ktor)
+    implementation(libs.koin.logger.slf4j)
+    implementation(libs.koin.annotations)
+    ksp(libs.koin.ksp.compiler)
     testImplementation(libs.ktor.serverTestHost)
     testImplementation(libs.kotlin.testJunit)
+    ksp(projects.network.serverProcessor)
 }
