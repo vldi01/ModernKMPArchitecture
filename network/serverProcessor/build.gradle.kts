@@ -8,4 +8,5 @@ dependencies {
     implementation(libs.kotlinpoet.ksp)
     implementation(project(":network:core"))
     implementation(libs.ktor.serverCore)
+    implementation(libs.ktorfit.lib)
 }

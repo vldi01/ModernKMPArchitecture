@@ -1,25 +1,25 @@
 package com.diachuk.architecture.network.api.user
 
-import com.diachuk.architecture.network.core.Body
-import com.diachuk.architecture.network.core.DELETE
-import com.diachuk.architecture.network.core.GET
-import com.diachuk.architecture.network.core.POST
-import com.diachuk.architecture.network.core.Path
-import com.diachuk.architecture.network.core.Query
+import de.jensklingenberg.ktorfit.http.Body
+import de.jensklingenberg.ktorfit.http.DELETE
+import de.jensklingenberg.ktorfit.http.GET
+import de.jensklingenberg.ktorfit.http.POST
+import de.jensklingenberg.ktorfit.http.Path
+import de.jensklingenberg.ktorfit.http.Query
 
 interface UserApi {
-    @GET("/users/{id}")
+    @GET("users/{id}")
     suspend fun getUser(@Path id: Long): User
 
-    @POST("/users")
+    @POST("users")
     suspend fun createUser(@Body request: CreateUserRequest): User
 
-    @GET("/users/search")
+    @GET("users/search")
     suspend fun searchUsers(
         @Query q: String,
         @Query limit: Int
     ): SearchResponse
 
-    @DELETE("/users/{id}")
+    @DELETE("users/{id}")
     suspend fun deleteUser(@Path id: Long): String
 }

@@ -1,5 +1,7 @@
 package com.diachuk.architecture.network.core
 
+import de.jensklingenberg.ktorfit.Ktorfit
+import io.ktor.client.HttpClient
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Configuration
 import org.koin.core.annotation.Module
@@ -9,6 +11,7 @@ import org.koin.core.annotation.Single
 @Configuration
 @ComponentScan
 class NetworkCoreDiModule {
+
     @Single
-    fun provideHttpClient(clientBuilder: ClientBuilder) = clientBuilder.buildMainHttpClient()
+    fun provideKtorfit(clientBuilder: ClientBuilder) = clientBuilder.buildKtorfit()
 }

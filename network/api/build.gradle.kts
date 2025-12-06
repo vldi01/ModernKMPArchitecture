@@ -1,5 +1,6 @@
 plugins {
     id("multiplatform-convention")
+    alias(libs.plugins.ktorfit)
 }
 
 kotlin {
@@ -8,6 +9,7 @@ kotlin {
             dependencies {
                 implementation(projects.network.core)
                 implementation(libs.ktor.clientCore)
+                implementation(libs.ktorfit.lib)
             }
         }
         jvmMain {
@@ -19,6 +21,5 @@ kotlin {
 }
 
 dependencies {
-    add("kspCommonMainMetadata",projects.network.clientProcessor)
     add("kspJvm",projects.network.serverProcessor)
 }

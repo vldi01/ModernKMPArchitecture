@@ -1,5 +1,6 @@
 package com.diachuk.architecture.network.core
 
+import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -13,7 +14,7 @@ import org.koin.core.annotation.Single
 
 @Single
 class ClientBuilder {
-    fun buildMainHttpClient(): HttpClient {
+    private fun buildMainHttpClient(): HttpClient {
         return HttpClient {
             expectSuccess = true
             install(ContentNegotiation) {
@@ -27,9 +28,15 @@ class ClientBuilder {
                 level = LogLevel.ALL
             }
             defaultRequest {
-                url("http://192.168.0.17:8080")
                 contentType(ContentType.Application.Json)
             }
         }
+    }
+
+    fun buildKtorfit(httpClient: HttpClient = buildMainHttpClient()): Ktorfit {
+        return Ktorfit.Builder()
+            .httpClient(httpClient)
+            .baseUrl("http://192.168.0.17:8080/")
+            .build()
     }
 }

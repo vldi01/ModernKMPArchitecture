@@ -1,11 +1,5 @@
 package com.diachuk.architecture.network.serverprocessor
 
-import com.diachuk.architecture.network.core.Body
-import com.diachuk.architecture.network.core.DELETE
-import com.diachuk.architecture.network.core.GET
-import com.diachuk.architecture.network.core.POST
-import com.diachuk.architecture.network.core.Path
-import com.diachuk.architecture.network.core.Query
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
@@ -21,6 +15,12 @@ import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.writeTo
+import de.jensklingenberg.ktorfit.http.Body
+import de.jensklingenberg.ktorfit.http.DELETE
+import de.jensklingenberg.ktorfit.http.GET
+import de.jensklingenberg.ktorfit.http.POST
+import de.jensklingenberg.ktorfit.http.Path
+import de.jensklingenberg.ktorfit.http.Query
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.routing.Route
 
@@ -90,7 +90,7 @@ class ServerProcessor(
             }
             if (annotation != null) {
                 val path =
-                    annotation.arguments.firstOrNull { it.name?.asString() == "path" || it.name == null }?.value as? String
+                    annotation.arguments.firstOrNull { it.name?.asString() == "value" || it.name?.asString() == "path" || it.name == null }?.value as? String
                         ?: ""
                 return HttpMethodInfo(method, path)
             }
@@ -105,7 +105,7 @@ class ServerProcessor(
         implName: String
     ) {
         val routeFunc = MemberName("io.ktor.server.routing", methodInfo.type)
-        
+
         builder.beginControlFlow("%M(%S) {", routeFunc, methodInfo.path)
 
         val args = mutableListOf<String>()
@@ -116,9 +116,12 @@ class ServerProcessor(
             val typeName = type.toTypeName()
             val qualifiedType = type.declaration.qualifiedName?.asString()
 
-            val isPath = param.annotations.any { it.annotationType.resolve().declaration.qualifiedName?.asString() == Path::class.qualifiedName }
-            val isQuery = param.annotations.any { it.annotationType.resolve().declaration.qualifiedName?.asString() == Query::class.qualifiedName }
-            val isBody = param.annotations.any { it.annotationType.resolve().declaration.qualifiedName?.asString() == Body::class.qualifiedName }
+            val isPath =
+                param.annotations.any { it.annotationType.resolve().declaration.qualifiedName?.asString() == Path::class.qualifiedName }
+            val isQuery =
+                param.annotations.any { it.annotationType.resolve().declaration.qualifiedName?.asString() == Query::class.qualifiedName }
+            val isBody =
+                param.annotations.any { it.annotationType.resolve().declaration.qualifiedName?.asString() == Body::class.qualifiedName }
 
             if (isBody) {
                 val receiveFunc = MemberName("io.ktor.server.request", "receive")
@@ -140,24 +143,48 @@ class ServerProcessor(
                 val nullable = type.isMarkedNullable
 
                 if (nullable) {
-                    builder.addStatement("val %L = call.%L[%S]?%L", paramName, accessor, paramKey, conversion)
+                    builder.addStatement(
+                        "val %L = call.%L[%S]?%L",
+                        paramName,
+                        accessor,
+                        paramKey,
+                        conversion
+                    )
                 } else {
                     val httpStatusCode = HttpStatusCode::class.asClassName()
                     val respond = MemberName("io.ktor.server.response", "respond")
 
                     if (qualifiedType == "kotlin.String") {
                         if (isQuery) {
-                            builder.addStatement("val %L = call.%L[%S] ?: \"\"", paramName, accessor, paramKey)
+                            builder.addStatement(
+                                "val %L = call.%L[%S] ?: \"\"",
+                                paramName,
+                                accessor,
+                                paramKey
+                            )
                         } else {
                             builder.addStatement(
                                 "val %L = call.%L[%S] ?: return@%L call.%M(%T.BadRequest, \"Missing %L\")",
-                                paramName, accessor, paramKey, methodInfo.type, respond, httpStatusCode, paramKey
+                                paramName,
+                                accessor,
+                                paramKey,
+                                methodInfo.type,
+                                respond,
+                                httpStatusCode,
+                                paramKey
                             )
                         }
                     } else {
                         builder.addStatement(
                             "val %L = call.%L[%S]?%L ?: return@%L call.%M(%T.BadRequest, \"Invalid %L\")",
-                            paramName, accessor, paramKey, conversion, methodInfo.type, respond, httpStatusCode, paramKey
+                            paramName,
+                            accessor,
+                            paramKey,
+                            conversion,
+                            methodInfo.type,
+                            respond,
+                            httpStatusCode,
+                            paramKey
                         )
                     }
                 }
@@ -166,7 +193,13 @@ class ServerProcessor(
         }
 
         val respondFunc = MemberName("io.ktor.server.response", "respond")
-        builder.addStatement("call.%M(%L.%L(%L))", respondFunc, implName, function.simpleName.asString(), args.joinToString(", "))
+        builder.addStatement(
+            "call.%M(%L.%L(%L))",
+            respondFunc,
+            implName,
+            function.simpleName.asString(),
+            args.joinToString(", ")
+        )
 
         builder.endControlFlow()
     }

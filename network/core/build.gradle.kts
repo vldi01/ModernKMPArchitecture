@@ -11,6 +11,7 @@ kotlin {
                 implementation(libs.ktor.clientContentNegotiation)
                 implementation(libs.ktor.serializationKotlinxJson)
                 implementation(libs.ktor.clientLogging)
+                implementation(libs.ktorfit.lib)
             }
         }
         androidMain {
