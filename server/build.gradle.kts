@@ -18,6 +18,7 @@ dependencies {
     implementation(projects.client.core)
     implementation(projects.network.api)
     implementation(libs.logback)
+    implementation(libs.ktor.clientCore)
     implementation(libs.ktor.serverCore)
     implementation(libs.ktor.serverNetty)
     implementation(libs.ktor.serverContentNegotiation)
