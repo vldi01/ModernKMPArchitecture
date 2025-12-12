@@ -9,4 +9,6 @@ dependencies {
     implementation(project(":network:core"))
     implementation(libs.ktor.serverCore)
     implementation(libs.ktorfit.lib)
+    implementation(libs.ktor.serverAuth)
+    implementation(libs.ktor.serverAuthJwt)
 }

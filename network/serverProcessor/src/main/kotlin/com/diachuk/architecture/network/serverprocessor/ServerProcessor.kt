@@ -1,5 +1,6 @@
 package com.diachuk.architecture.network.serverprocessor
 
+import com.diachuk.architecture.network.core.JwtType
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
@@ -22,6 +23,7 @@ class ServerProcessor(
 ) : SymbolProcessor {
 
     private val routeGenerator = RouteGenerator(codeGenerator)
+    private val jwtGenerator = JwtGenerator(codeGenerator)
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val symbols = (
@@ -44,6 +46,12 @@ class ServerProcessor(
             routeGenerator.generateServerRoute(interfaceDecl)
         }
 
-        return symbols.filterNot { it.validate() }.toList()
+        val jwtSymbols = resolver.getSymbolsWithAnnotation(JwtType::class.qualifiedName!!).toList()
+        val validJwtSymbols = jwtSymbols.filter { it.validate() }
+        val jwtClasses = validJwtSymbols.filterIsInstance<KSClassDeclaration>()
+
+        jwtGenerator.generate(jwtClasses)
+
+        return (symbols.filterNot { it.validate() } + jwtSymbols.filterNot { it.validate() }).distinct().toList()
     }
 }

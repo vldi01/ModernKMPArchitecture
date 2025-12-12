@@ -15,11 +15,13 @@ kotlin {
         jvmMain {
             dependencies {
                 implementation(libs.ktor.serverCore)
+                implementation(libs.ktor.serverAuth)
+                implementation(libs.ktor.serverAuthJwt)
             }
         }
     }
 }
 
 dependencies {
-    add("kspJvm",projects.network.serverProcessor)
+    add("kspJvm", projects.network.serverProcessor)
 }

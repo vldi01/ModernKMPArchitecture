@@ -1,9 +1,12 @@
 package com.diachuk.architecture.network.serverprocessor
 
+import com.diachuk.architecture.network.core.AuthJwt
+import com.diachuk.architecture.network.core.JwtType
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
@@ -58,6 +61,38 @@ class RouteGenerator(
         methodInfo: HttpMethodInfo,
         implName: String
     ) {
+        val authJwtName = AuthJwt::class.qualifiedName!!
+        val jwtTypeName = JwtType::class.qualifiedName!!
+
+        val authAnnotation = function.annotations.find {
+            it.annotationType.resolve().declaration.qualifiedName?.asString() == authJwtName
+        }
+
+        var authName: String? = null
+
+        if (authAnnotation != null) {
+            val arg = authAnnotation.arguments.firstOrNull { it.name?.asString() == "klass" }
+                ?: authAnnotation.arguments.firstOrNull()
+
+            val type = arg?.value as? KSType
+            val decl = type?.declaration
+
+            if (decl != null) {
+                val isJwtType = decl.annotations.any {
+                    it.annotationType.resolve().declaration.qualifiedName?.asString() == jwtTypeName
+                }
+                if (!isJwtType) {
+                    throw IllegalArgumentException("Class ${decl.qualifiedName?.asString() ?: decl.simpleName.asString()} used in @AuthJwt must be annotated with @JwtType")
+                }
+                authName = decl.simpleName.asString()
+            }
+        }
+
+        if (authName != null) {
+            val authenticateFunc = MemberName("io.ktor.server.auth", "authenticate")
+            builder.beginControlFlow("%M(%S) {", authenticateFunc, authName)
+        }
+
         val routeFunc = MemberName("io.ktor.server.routing", methodInfo.type)
 
         builder.beginControlFlow("%M(%S) {", routeFunc, methodInfo.path)
@@ -96,8 +131,16 @@ class RouteGenerator(
                     val receiveMultipart = MemberName("io.ktor.server.request", "receiveMultipart")
                     val partDataClassName = ClassName("io.ktor.http.content", "PartData")
 
-                    builder.addStatement("val %L_parts = mutableListOf<%T>()", paramName, partDataClassName)
-                    builder.addStatement("val %L_multipart = call.%M()", paramName, receiveMultipart)
+                    builder.addStatement(
+                        "val %L_parts = mutableListOf<%T>()",
+                        paramName,
+                        partDataClassName
+                    )
+                    builder.addStatement(
+                        "val %L_multipart = call.%M()",
+                        paramName,
+                        receiveMultipart
+                    )
                     builder.beginControlFlow("while (true)")
                     builder.addStatement("val part = %L_multipart.readPart() ?: break", paramName)
                     builder.addStatement("%L_parts.add(part)", paramName)
@@ -196,20 +239,26 @@ class RouteGenerator(
                 val type = param.type.resolve()
                 val typeName = type.toTypeName()
                 val qualifiedType = type.declaration.qualifiedName?.asString()
-                val partAnnotation = param.annotations.find { it.annotationType.resolve().declaration.qualifiedName?.asString() == Part::class.qualifiedName }
-                val partName = partAnnotation?.arguments?.firstOrNull()?.value as? String ?: paramName
+                val partAnnotation =
+                    param.annotations.find { it.annotationType.resolve().declaration.qualifiedName?.asString() == Part::class.qualifiedName }
+                val partName =
+                    partAnnotation?.arguments?.firstOrNull()?.value as? String ?: paramName
 
                 if (qualifiedType == "kotlin.String") {
                     builder.addStatement("var %L: String? = null", paramName)
                 } else if (qualifiedType == "kotlin.collections.List") {
                     val partDataClassName = ClassName("io.ktor.http.content", "PartData")
-                    builder.addStatement("val %L = mutableListOf<%T>()", paramName, partDataClassName)
+                    builder.addStatement(
+                        "val %L = mutableListOf<%T>()",
+                        paramName,
+                        partDataClassName
+                    )
                 }
             }
 
             val receiveMultipart = MemberName("io.ktor.server.request", "receiveMultipart")
             builder.addStatement("val multipart = call.%M()", receiveMultipart)
-            
+
             builder.beginControlFlow("while (true)")
             builder.addStatement("val part = multipart.readPart() ?: break")
 
@@ -219,13 +268,17 @@ class RouteGenerator(
                 val paramName = param.name!!.asString()
                 val type = param.type.resolve()
                 val qualifiedType = type.declaration.qualifiedName?.asString()
-                val partAnnotation = param.annotations.find { it.annotationType.resolve().declaration.qualifiedName?.asString() == Part::class.qualifiedName }
+                val partAnnotation =
+                    param.annotations.find { it.annotationType.resolve().declaration.qualifiedName?.asString() == Part::class.qualifiedName }
                 val partName = partAnnotation?.arguments?.firstOrNull()?.value as? String ?: ""
 
                 if (partName.isNotEmpty()) {
                     builder.beginControlFlow("%S ->", partName)
                     if (qualifiedType == "kotlin.String") {
-                        builder.addStatement("if (part is io.ktor.http.content.PartData.FormItem) { %L = part.value }", paramName)
+                        builder.addStatement(
+                            "if (part is io.ktor.http.content.PartData.FormItem) { %L = part.value }",
+                            paramName
+                        )
                     }
                     builder.endControlFlow()
                 }
@@ -236,18 +289,19 @@ class RouteGenerator(
             // Collect catch-all parts (empty name in @Part)
             multipartParts.forEach { param ->
                 val paramName = param.name!!.asString()
-                val partAnnotation = param.annotations.find { it.annotationType.resolve().declaration.qualifiedName?.asString() == Part::class.qualifiedName }
+                val partAnnotation =
+                    param.annotations.find { it.annotationType.resolve().declaration.qualifiedName?.asString() == Part::class.qualifiedName }
                 val partName = partAnnotation?.arguments?.firstOrNull()?.value as? String ?: ""
-                
+
                 if (partName.isEmpty()) {
-                     builder.addStatement("%L.add(part)", paramName)
+                    builder.addStatement("%L.add(part)", paramName)
                 }
             }
-            
+
             builder.endControlFlow() // End while
 
             // Finalize String params
-             multipartParts.forEach { param ->
+            multipartParts.forEach { param ->
                 val paramName = param.name!!.asString()
                 val type = param.type.resolve()
                 val qualifiedType = type.declaration.qualifiedName?.asString()
@@ -262,10 +316,11 @@ class RouteGenerator(
                 }
             }
         }
-        
+
         // Fix args to use _final for Strings in multipart
-         val finalArgs = args.map { arg -> 
-            val isMultipartString = multipartParts.any { it.name!!.asString() == arg && it.type.resolve().declaration.qualifiedName?.asString() == "kotlin.String" }
+        val finalArgs = args.map { arg ->
+            val isMultipartString =
+                multipartParts.any { it.name!!.asString() == arg && it.type.resolve().declaration.qualifiedName?.asString() == "kotlin.String" }
             if (isMultipartString) "${arg}_final" else arg
         }
 
@@ -279,5 +334,9 @@ class RouteGenerator(
         )
 
         builder.endControlFlow()
+
+        if (authName != null) {
+            builder.endControlFlow()
+        }
     }
 }
