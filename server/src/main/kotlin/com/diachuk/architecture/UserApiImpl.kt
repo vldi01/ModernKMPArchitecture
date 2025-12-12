@@ -4,13 +4,8 @@ import com.diachuk.architecture.network.api.user.CreateUserRequest
 import com.diachuk.architecture.network.api.user.SearchResponse
 import com.diachuk.architecture.network.api.user.User
 import com.diachuk.architecture.network.api.user.UserApi
-import io.ktor.client.request.forms.MultiPartFormDataContent
-import io.ktor.http.content.MultiPartData
 import io.ktor.http.content.PartData
-import io.ktor.http.content.forEachPart
-import io.ktor.http.content.streamProvider
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.request.receiveMultipart
+import io.ktor.utils.io.jvm.javaio.toInputStream
 import org.koin.core.annotation.Single
 
 @Single
@@ -41,7 +36,7 @@ class UserApiImpl : UserApi {
         file.forEach { part ->
             if (part is PartData.FileItem) {
                 fileName = part.originalFileName ?: "unknown"
-                val fileBytes = part.streamProvider().readBytes()
+                val fileBytes = part.provider().toInputStream().readAllBytes()
                 fileSize = fileBytes.size
                 // TODO: Save the file here
             }

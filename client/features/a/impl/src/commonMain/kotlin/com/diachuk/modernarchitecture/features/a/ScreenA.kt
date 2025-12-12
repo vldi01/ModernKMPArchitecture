@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.diachuk.modernarchitecture.features.b.DestinationB
 import com.diachuk.modernarchitecture.navigaion.Navigator
-import com.diachuk.modernarchitecture.navigaion.Screen
 import org.koin.compose.koinInject
 
 @Composable

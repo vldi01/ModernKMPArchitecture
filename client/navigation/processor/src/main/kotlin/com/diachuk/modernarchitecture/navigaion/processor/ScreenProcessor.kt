@@ -30,7 +30,10 @@ class ScreenProcessor(
                 try {
                     screenInjectorGenerator.generate(screenFunction)
                 } catch (e: Exception) {
-                    logger.error("Error generating injector for ${screenFunction.simpleName.asString()}: ${e.message}", screenFunction)
+                    logger.error(
+                        "Error generating injector for ${screenFunction.simpleName.asString()}: ${e.message}",
+                        screenFunction
+                    )
                 }
             }
 
