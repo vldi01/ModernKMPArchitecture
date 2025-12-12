@@ -4,7 +4,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.get
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 class BaseMultiplatformPlugin : Plugin<Project> {
@@ -43,6 +42,10 @@ class BaseMultiplatformPlugin : Plugin<Project> {
 
     private fun Project.setupKotlin() {
         kotlinExtension {
+            compilerOptions {
+                freeCompilerArgs.add("-Xexpect-actual-classes")
+            }
+            
             androidTarget {
                 compilerOptions {
                     jvmTarget.set(JvmTarget.JVM_11)
@@ -60,17 +63,6 @@ class BaseMultiplatformPlugin : Plugin<Project> {
             }
 
             jvm()
-
-            js {
-                browser()
-                binaries.executable()
-            }
-
-            @OptIn(ExperimentalWasmDsl::class)
-            wasmJs {
-                browser()
-                binaries.executable()
-            }
 
             sourceSets.commonMain.dependencies {
                 implementation(libs.kotlinx.serialization)

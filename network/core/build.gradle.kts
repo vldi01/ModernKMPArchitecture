@@ -29,10 +29,5 @@ kotlin {
                 implementation(libs.ktor.clientOkHttp)
             }
         }
-        jsMain {
-            dependencies {
-                implementation(libs.ktor.clientJs)
-            }
-        }
     }
 }
