@@ -22,7 +22,7 @@ interface UserApi {
     @GET("users/search")
     suspend fun searchUsers(
         @Query q: String,
-        @Query limit: Int
+        @Query limit: Int?
     ): SearchResponse
 
     @DELETE("users/{id}")

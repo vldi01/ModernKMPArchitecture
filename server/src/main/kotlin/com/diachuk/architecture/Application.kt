@@ -1,10 +1,14 @@
 package com.diachuk.architecture
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
 import com.diachuk.architecture.network.api.user.UserApi
 import com.diachuk.architecture.network.api.user.bindUserApi
+import com.diachuk.architecture.network.server.configureJwt
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.ktor.server.auth.Authentication
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
@@ -34,6 +38,20 @@ fun Application.module() {
             isLenient = true
             ignoreUnknownKeys = true
         })
+    }
+
+//    val secret = environment.config.property("jwt.secret").getString()
+//    val issuer = environment.config.property("jwt.issuer").getString()
+//    val audience = environment.config.property("jwt.audience").getString()
+
+    install(Authentication) {
+        configureJwt(
+            JWT
+                .require(Algorithm.HMAC256("secret"))
+                .withAudience("audience")
+                .withIssuer("issuer")
+                .build()
+        )
     }
 
     routing {

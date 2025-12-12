@@ -18,7 +18,7 @@ class UserApiImpl : UserApi {
         return User(123, request.name, request.email)
     }
 
-    override suspend fun searchUsers(q: String, limit: Int): SearchResponse {
+    override suspend fun searchUsers(q: String, limit: Int?): SearchResponse {
         return SearchResponse(
             listOf(User(1, "Alice", "alice@example.com")),
             1
