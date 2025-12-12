@@ -1,7 +1,7 @@
 package com.diachuk.client.database
 
-import androidx.room.RoomDatabase
+import androidx.room.RoomDatabaseConstructor
 
-expect class DatabaseFactory {
-    fun create(): RoomDatabase.Builder<AppDatabase>
+expect object DatabaseFactory : RoomDatabaseConstructor<AppDatabase> {
+    override fun initialize(): AppDatabase
 }

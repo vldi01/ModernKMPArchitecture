@@ -1,7 +1,6 @@
 package com.diachuk.architecture.core
 
-import com.diachuk.client.database.DatabaseModuleJvm
 import org.koin.core.annotation.KoinApplication
 
-@KoinApplication(modules = [DatabaseModuleJvm::class])
+@KoinApplication
 actual object DiApp

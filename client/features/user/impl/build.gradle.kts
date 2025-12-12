@@ -9,6 +9,7 @@ kotlin {
             dependencies {
                 implementation(projects.client.features.user.api)
                 implementation(projects.client.database)
+                implementation(libs.androidx.room.runtime)
             }
         }
     }

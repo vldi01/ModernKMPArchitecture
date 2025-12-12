@@ -2,6 +2,7 @@ package com.diachuk.architecture.core
 
 import com.diachuk.architecture.network.api.user.NetworkApiDiModule
 import com.diachuk.architecture.network.core.NetworkCoreDiModule
+import com.diachuk.client.database.DatabaseModule
 import com.diachuk.modernarchitecture.features.a.DIModuleA
 import com.diachuk.modernarchitecture.features.b.DIModuleB
 import com.diachuk.modernarchitecture.navigaion.NavigationDi
@@ -20,11 +21,12 @@ import org.koin.core.annotation.Single
         NavigationDi::class,
         NetworkApiDiModule::class,
         NetworkCoreDiModule::class,
+        DatabaseModule::class
     ]
 )
 @Configuration
 @ComponentScan
-object DiModuleCore {
+object CoreDiModule {
     @Single
     fun provideCoroutineScope() = CoroutineScope(SupervisorJob())
 }
