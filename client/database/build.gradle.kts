@@ -10,6 +10,7 @@ kotlin {
             implementation(libs.androidx.sqlite.bundled)
             implementation(libs.kotlinx.coroutines.core)
             implementation(projects.client.features.user.api)
+            implementation(projects.client.features.auth.api)
         }
 
         androidMain.dependencies {

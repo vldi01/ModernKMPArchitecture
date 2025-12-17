@@ -11,10 +11,12 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Single
+import org.koin.core.component.KoinComponent
 
 @Single
-class ClientBuilder {
+class ClientBuilder : KoinComponent {
     private fun buildMainHttpClient(): HttpClient {
+        val pluginProviders = getKoin().getAll<NetworkPluginProvider>()
         return HttpClient {
             expectSuccess = true
             install(ContentNegotiation) {
@@ -27,6 +29,15 @@ class ClientBuilder {
             install(Logging) {
                 level = LogLevel.ALL
             }
+
+            pluginProviders
+                .map {
+                    with(it) { provide() }
+                }
+                .forEach {
+                    install(it)
+                }
+
             defaultRequest {
                 contentType(ContentType.Application.Json)
             }

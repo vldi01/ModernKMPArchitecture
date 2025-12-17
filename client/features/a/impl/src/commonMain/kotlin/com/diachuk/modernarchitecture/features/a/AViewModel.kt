@@ -18,7 +18,7 @@ class AViewModel(
         println("[AViewModel] destination = ${destination}")
 
         viewModelScope.launch {
-            safeApiCall { userApi.searchUsers("test", 10) }
+            safeApiCall { userApi.getUser(1) }
                 .onSuccess {
                     println(it)
                 }

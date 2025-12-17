@@ -12,6 +12,7 @@ kotlin {
                 implementation(libs.ktor.serializationKotlinxJson)
                 implementation(libs.ktor.clientLogging)
                 implementation(libs.ktorfit.lib)
+                implementation(libs.koin.core)
             }
         }
         androidMain {

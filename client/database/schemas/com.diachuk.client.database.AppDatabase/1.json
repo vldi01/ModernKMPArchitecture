@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "66138bfe07f4bfa07b7bbf351bce49c3",
+    "identityHash": "94dfec1c868d42f9377c49a3dc9c3726",
     "entities": [
       {
         "tableName": "UserEntity",
@@ -27,11 +27,35 @@
             "id"
           ]
         }
+      },
+      {
+        "tableName": "TokenEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`typeName` TEXT NOT NULL, `token` TEXT NOT NULL, PRIMARY KEY(`typeName`))",
+        "fields": [
+          {
+            "fieldPath": "typeName",
+            "columnName": "typeName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "token",
+            "columnName": "token",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "typeName"
+          ]
+        }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '66138bfe07f4bfa07b7bbf351bce49c3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '94dfec1c868d42f9377c49a3dc9c3726')"
     ]
   }
 }
