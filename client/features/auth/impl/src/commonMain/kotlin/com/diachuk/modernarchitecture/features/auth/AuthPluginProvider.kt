@@ -1,7 +1,9 @@
 package com.diachuk.modernarchitecture.features.auth
 
+import com.diachuk.architecture.network.api.user.JwtEntity
 import com.diachuk.architecture.network.core.AuthJwt
 import com.diachuk.architecture.network.core.NetworkPluginProvider
+import com.diachuk.architecture.network.core.NoAuth
 import de.jensklingenberg.ktorfit.annotations
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.plugins.HttpClientPlugin
@@ -14,8 +16,17 @@ class AuthPluginProvider(private val tokenStore: TokenStore) : NetworkPluginProv
     override fun HttpClientConfig<*>.provide(): HttpClientPlugin<*, *> =
         createClientPlugin("AuthPlugin") {
             onRequest { request, _ ->
-                val authAnnotation = request.annotations.filterIsInstance<AuthJwt>().firstOrNull()
-                    ?: return@onRequest
+                val authAnnotation = request.annotations
+                    .filterIsInstance<AuthJwt>()
+                    .firstOrNull()
+                    ?: AuthJwt(JwtEntity.UserToken::class)
+                val noAuthAnnotation = request.annotations
+                    .filterIsInstance<NoAuth>()
+                    .firstOrNull()
+
+                if (noAuthAnnotation != null) {
+                    return@onRequest
+                }
 
                 val token = tokenStore.getToken(authAnnotation.klass)
 
