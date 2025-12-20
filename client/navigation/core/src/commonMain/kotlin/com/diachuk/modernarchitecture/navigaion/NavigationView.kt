@@ -10,17 +10,15 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import org.koin.compose.koinInject
 import org.koin.core.annotation.KoinInternalApi
-import org.koin.ext.getFullName
 
 
 @OptIn(KoinInternalApi::class)
@@ -29,7 +27,7 @@ fun NavigationView(
     modifier: Modifier = Modifier
 ) {
     val navigator = koinInject<Navigator>()
-    val screenInjectors = koinInjectNamedMap<ScreenInjector>()
+    val screenInjectors = koinGetAll<ScreenInjector>()
 
     val fastEasing = FastOutLinearInEasing
     val slowEasing = LinearOutSlowInEasing
@@ -43,9 +41,10 @@ fun NavigationView(
             rememberSaveableStateHolderNavEntryDecorator(),
             rememberViewModelStoreNavEntryDecorator()
         ),
-        entryProvider = entryProvider@{ key ->
-            screenInjectors[key::class.getFullName()]?.getNavEntry(key)
-                ?: NavEntry(object : Destination {}) { Text("Unknown route") }
+        entryProvider = entryProvider {
+            screenInjectors.forEach {
+                it.injectInto(this)
+            }
         },
         transitionSpec = {
             // FORWARD: Shared X-Axis

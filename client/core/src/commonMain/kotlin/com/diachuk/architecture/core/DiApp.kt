@@ -1,3 +1,6 @@
 package com.diachuk.architecture.core
 
-expect object DiApp
+import org.koin.core.annotation.KoinApplication
+
+@KoinApplication
+object DiApp

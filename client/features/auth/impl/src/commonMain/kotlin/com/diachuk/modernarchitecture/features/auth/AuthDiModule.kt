@@ -9,7 +9,4 @@ import org.koin.core.annotation.Single
 @Module
 @ComponentScan
 @Configuration
-object AuthDiModule {
-    @Single
-    fun provideTokenDao(appDatabase: AppDatabase) = appDatabase.tokenDao()
-}
+object AuthDiModule

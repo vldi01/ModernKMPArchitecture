@@ -1,9 +1,10 @@
-package com.diachuk.modernarchitecture.features.a
+package com.diachuk.modernarchitecture.features.a.logic
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.diachuk.architecture.network.api.user.UserApi
 import com.diachuk.architecture.network.core.safeApiCall
+import com.diachuk.modernarchitecture.features.a.DestinationA
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.InjectedParam

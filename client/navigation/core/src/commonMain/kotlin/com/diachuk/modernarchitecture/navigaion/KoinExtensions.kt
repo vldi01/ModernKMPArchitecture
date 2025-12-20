@@ -3,20 +3,16 @@ package com.diachuk.modernarchitecture.navigaion
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import org.koin.compose.currentKoinScope
-import org.koin.core.annotation.KoinInternalApi
 import org.koin.core.definition.Kind
+import org.koin.core.qualifier.TypeQualifier
 import org.koin.core.scope.Scope
+import kotlin.reflect.KClass
 
-@OptIn(KoinInternalApi::class)
 @Composable
-inline fun <reified T> koinInjectNamedMap(
+inline fun <reified T> koinGetAll(
     scope: Scope = currentKoinScope()
-): Map<String, T> {
+): List<T> {
     return remember(scope) {
-        scope.getKoin().instanceRegistry.instances.values.map { it.beanDefinition }
-            .filter { it.kind == Kind.Singleton }
-            .filter { it.secondaryTypes.contains(ScreenInjector::class) }
-            .filter { it.qualifier != null }
-            .associate { it.qualifier!!.value to scope.get<ScreenInjector>(qualifier = it.qualifier) as T }
+        scope.getKoin().getAll<T>()
     }
 }

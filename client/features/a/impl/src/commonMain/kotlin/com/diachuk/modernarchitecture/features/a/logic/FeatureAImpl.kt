@@ -1,5 +1,6 @@
-package com.diachuk.modernarchitecture.features.a
+package com.diachuk.modernarchitecture.features.a.logic
 
+import com.diachuk.modernarchitecture.features.a.FeatureA
 import org.koin.core.annotation.Factory
 
 @Factory(binds = [FeatureA::class])

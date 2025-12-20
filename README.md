@@ -1,112 +1,106 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop (JVM), Server.
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform
-  applications.
-  It contains several subfolders:
-    - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-    - Other folders are for Kotlin code that will be compiled for only the platform indicated in the
-      folder name.
-      For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-      the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-      Similarly, if you want to edit the Desktop (JVM) specific part,
-      the [jvmMain](./composeApp/src/jvmMain/kotlin)
-      folder is the appropriate location.
+# 🏛️ ModernArchitecture KMP Template
 
-* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose
-  Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for
-  your project.
+> "Architecture is the art of organizing chaos. A great architect knows when to use a tool, and when to keep the toolbox closed."
 
-* [/server](./server/src/main/kotlin) is for the Ktor server application.
+This project is a high-performance, opinionated **Kotlin Multiplatform (KMP)** template designed for enterprise-scale applications. It bridges the gap between frontend and backend using a **"Contract-First"** philosophy, ensuring that your Android, iOS, Desktop, and Ktor Server are always in perfect sync with zero boilerplate.
 
-* [/shared](./shared/src) is for the code that will be shared between all targets in the project.
-  The most important subfolder is [commonMain](./shared/src/commonMain/kotlin). If preferred, you
-  can add code to the platform-specific folders here too.
+## 🏗 Top-Level Module Structure
 
-### Build and Run Android Application
+The project is organized into logical scopes to separate the "What" from the "How."
 
-To build and run the development version of the Android app, use the run configuration from the run
-widget
-in your IDE’s toolbar or build it directly from the terminal:
+-   **`client/`**: The frontend applications (Android, iOS, Desktop).
 
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:assembleDebug
-  ```
+    -   **`:core`**: The client entry point and generic utilities. _Kept_ small to avoid _frequent recompilation._
 
-### Build and Run Desktop (JVM) Application
+    -   **`database/`**: Centralized Room (KMP) configuration.
 
-To build and run the development version of the desktop app, use the run configuration from the run
-widget
-in your IDE’s toolbar or run it directly from the terminal:
+    -   **`:navigation`**: The decoupled navigation engine.
 
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:run
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:run
-  ```
+    -   **`:features`**: The vertical business slices of the application.
 
-### Build and Run Server
+-   **`:composeApp`**: The platform entry points and UI shell.
 
-To build and run the development version of the server, use the run configuration from the run
-widget
-in your IDE’s toolbar or run it directly from the terminal:
+-   **`server/`**: The Ktor backend implementation.
 
-- on macOS/Linux
-  ```shell
-  ./gradlew :server:run
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :server:run
-  ```
+-   **`network/`**: The **"Shared Contract"** containing DTOs and API interfaces.
 
-### Build and Run Web Application
+-   **`buildSrc/`**: The "Conductor" using Gradle Convention Plugins to centralize build logic.
 
-To build and run the development version of the web app, use the run configuration from the run
-widget
-in your IDE's toolbar or run it directly from the terminal:
 
-- for the Wasm target (faster, modern browsers):
-    - on macOS/Linux
-      ```shell
-      ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
-      ```
-    - on Windows
-      ```shell
-      .\gradlew.bat :composeApp:wasmJsBrowserDevelopmentRun
-      ```
-- for the JS target (slower, supports older browsers):
-    - on macOS/Linux
-      ```shell
-      ./gradlew :composeApp:jsBrowserDevelopmentRun
-      ```
-    - on Windows
-      ```shell
-      .\gradlew.bat :composeApp:jsBrowserDevelopmentRun
-      ```
+## 🧩 The API/Impl Split Pattern
 
-### Build and Run iOS Application
+To ensure lightning-fast incremental builds and strict encapsulation, every feature in `:features` is divided into two Gradle modules.
 
-To build and run the development version of the iOS app, use the run configuration from the run
-widget
-in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+### 1. API (`:features:x:api`)
 
----
+-   **Purpose:** The public contract.
 
-Learn more
-about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html),
-[Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform/#compose-multiplatform),
-[Kotlin/Wasm](https://kotl.in/wasm/)…
+-   **Contents:** Navigation Destinations, public Interfaces, and database entities.
 
-We would appreciate your feedback on Compose/Web and Kotlin/Wasm in the public Slack
-channel [#compose-web](https://slack-chats.kotlinlang.org/c/compose-web).
-If you face any issues, please report them
-on [YouTrack](https://youtrack.jetbrains.com/newIssue?project=CMP).
+-   **Why Entities here?** Placing `@Entity` classes in the API allows the central `:database` module to see them without depending on the feature's internal logic.
+
+
+### 2. Implementation (`:features:x:impl`)
+
+-   **Purpose:** The "Private Brain" of the feature.
+
+-   **Contents:** UI (Compose), ViewModels, Logic, and DI.
+
+-   **Rule:** Other features **never** depend on implementation modules. This prevents dependency "spaghetti."
+
+
+## 📦 Functional Package Structure
+
+Inside an `:impl` module, we avoid "Architecture Ceremony." We use a flat, functional structure that grows only when needed.
+
+```
+:features:auth:impl
+├── ui/           # Pure, stateless Compose screens (@Composable)
+├── logic/        # The "Brain". ViewModels and State models.
+│                 # API calls happen here directly by default.
+├── data/         # (Optional) Repositories/DAOs. 
+│                 # Only create this if you have complex "Offline-First" logic.
+├── navigation/   # ScreenInjector registering UI to Destination.
+└── di/           # Koin @Module configuration.
+```
+## 🚀 Key Philosophy: "Just-in-Time" Architecture
+
+We reject the dogma of "Clean Architecture" that forces you to create empty files like `UseCases`, `Repositories`, or `DataStores` for simple features.
+
+**Simplicity is the default:**
+
+-   **No Boilerplate:** We do not enforce strict dependency rules (Domain vs. Data vs. Presentation) _inside_ a feature module. Since it is compiled as a single `:impl` module, these artificial boundaries only add noise.
+
+-   **Direct Access:** It is perfectly acceptable for a `ViewModel` to call an API interface directly.
+
+-   **Evolve, Don't Pre-optimize:** You create a `Repository` or `UseCase` **only** if the logic becomes complex or requires offline-first handling. If you are just fetching data and showing it, keep the toolbox closed.
+
+## 🌐 Shared Network (Full-Stack Type Safety)
+
+This is the **"Killer Feature"** of this template. We define our API once as a Kotlin Interface in the `:network` module.
+
+1.  **Contract-First:** You write the interface first.
+
+2.  **Client (Mobile/Desktop):** Uses **Ktorfit** to auto-generate the network client implementation.
+
+3.  **Server (Ktor):** A **Custom KSP Processor** generates the Ktor Server routing blocks (GET, POST, Auth validation) directly from the interface.
+
+
+**Result:** A change in the network interface is a compile-time error in both the Backend and the Mobile App. No more "404 Not Found" or parsing bugs.
+
+## 🧭 Decoupled Navigation (The Registry)
+
+Features do not know about each other; they only know about **Destinations** defined in API modules.
+
+-   **Registry Pattern:** Features register their screens into a global scope using a `ScreenInjector`.
+
+-   **Zero-Knowledge:** Feature A navigates to Feature B by passing a `DestinationB` object. The navigator finds the correct Composable via Koin-powered map injection.
+
+## 🛠 Tech Stack
+
+-   **UI:** Compose Multiplatform (Android, iOS, Desktop)
+
+-   **DI:** Koin + Koin Annotations
+
+-   **Networking:** Ktor + Ktorfit + Custom KSP

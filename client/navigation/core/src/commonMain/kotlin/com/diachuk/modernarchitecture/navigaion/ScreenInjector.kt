@@ -1,7 +1,7 @@
 package com.diachuk.modernarchitecture.navigaion
 
-import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.EntryProviderScope
 
 interface ScreenInjector {
-    fun getNavEntry(key: Destination): NavEntry<Destination>?
+    fun injectInto(scope: EntryProviderScope<Destination>)
 }

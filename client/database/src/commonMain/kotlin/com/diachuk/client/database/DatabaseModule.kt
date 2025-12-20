@@ -13,4 +13,7 @@ object DatabaseModule {
     fun provideDatabase(): AppDatabase {
         return DatabaseFactory.initialize()
     }
+
+    @Single
+    fun provideTokenDao(appDatabase: AppDatabase) = appDatabase.tokenDao()
 }
