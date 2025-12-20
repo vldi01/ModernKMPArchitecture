@@ -97,6 +97,16 @@ Features do not know about each other; they only know about **Destinations** def
 
 -   **Zero-Knowledge:** Feature A navigates to Feature B by passing a `DestinationB` object. The navigator finds the correct Composable via Koin-powered map injection.
 
+**Example:**
+``` kotlin
+@Single
+class AScreenInjector : ScreenInjector {
+    override fun injectInto(scope: EntryProviderScope<Destination>) {
+        scope.entry<DestinationA> { AScreen(it, koinViewModel { parametersOf(it) }) }
+    }
+}
+```
+
 ## 🛠 Tech Stack
 
 -   **UI:** Compose Multiplatform (Android, iOS, Desktop)

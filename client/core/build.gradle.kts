@@ -8,8 +8,6 @@ kotlin {
         commonMain {
             dependencies {
                 // Needed for DI
-                implementation(projects.client.features.a.impl)
-                implementation(projects.client.features.b.impl)
                 implementation(projects.client.features.user.impl)
                 implementation(projects.client.features.auth.impl)
                 implementation(projects.client.database)
