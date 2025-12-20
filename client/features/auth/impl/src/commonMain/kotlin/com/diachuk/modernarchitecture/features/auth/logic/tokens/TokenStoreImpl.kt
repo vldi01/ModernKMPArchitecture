@@ -1,8 +1,10 @@
-package com.diachuk.modernarchitecture.features.auth
+package com.diachuk.modernarchitecture.features.auth.logic.tokens
 
-import com.diachuk.client.database.AppDatabase
-import kotlin.reflect.KClass
+import com.diachuk.modernarchitecture.features.auth.api.TokenDao
+import com.diachuk.modernarchitecture.features.auth.api.TokenEntity
+import com.diachuk.modernarchitecture.features.auth.api.TokenStore
 import org.koin.core.annotation.Single
+import kotlin.reflect.KClass
 
 @Single(binds = [TokenStore::class])
 class TokenStoreImpl(private val tokenDao: TokenDao) : TokenStore {

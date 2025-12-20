@@ -3,8 +3,8 @@ package com.diachuk.client.database
 import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.diachuk.modernarchitecture.features.auth.TokenDao
-import com.diachuk.modernarchitecture.features.auth.TokenEntity
+import com.diachuk.modernarchitecture.features.auth.api.TokenDao
+import com.diachuk.modernarchitecture.features.auth.api.TokenEntity
 import com.diachuk.modernarchitecture.features.user.api.UserDao
 import com.diachuk.modernarchitecture.features.user.api.UserEntity
 

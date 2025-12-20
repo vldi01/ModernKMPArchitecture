@@ -1,4 +1,4 @@
-package com.diachuk.modernarchitecture.features.auth
+package com.diachuk.modernarchitecture.features.auth.api
 
 import androidx.room.Dao
 import androidx.room.Insert

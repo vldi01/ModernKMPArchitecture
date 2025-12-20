@@ -3,8 +3,8 @@ package com.diachuk.modernarchitecture.features.auth.navigation
 import androidx.navigation3.runtime.EntryProviderScope
 import com.diachuk.modernarchitecture.features.auth.api.LoginDestination
 import com.diachuk.modernarchitecture.features.auth.api.RegisterDestination
-import com.diachuk.modernarchitecture.features.auth.logic.LoginViewModel
-import com.diachuk.modernarchitecture.features.auth.logic.RegisterViewModel
+import com.diachuk.modernarchitecture.features.auth.logic.login.LoginViewModel
+import com.diachuk.modernarchitecture.features.auth.logic.registration.RegisterViewModel
 import com.diachuk.modernarchitecture.features.auth.ui.LoginScreen
 import com.diachuk.modernarchitecture.features.auth.ui.RegisterScreen
 import com.diachuk.modernarchitecture.navigaion.Destination

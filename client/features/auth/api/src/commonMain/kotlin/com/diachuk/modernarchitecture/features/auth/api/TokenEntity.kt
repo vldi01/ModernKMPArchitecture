@@ -1,4 +1,4 @@
-package com.diachuk.modernarchitecture.features.auth
+package com.diachuk.modernarchitecture.features.auth.api
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

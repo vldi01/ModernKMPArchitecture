@@ -1,9 +1,10 @@
-package com.diachuk.modernarchitecture.features.auth
+package com.diachuk.modernarchitecture.features.auth.logic.tokens
 
 import com.diachuk.architecture.network.api.user.JwtEntity
 import com.diachuk.architecture.network.core.AuthJwt
 import com.diachuk.architecture.network.core.NetworkPluginProvider
 import com.diachuk.architecture.network.core.NoAuth
+import com.diachuk.modernarchitecture.features.auth.api.TokenStore
 import de.jensklingenberg.ktorfit.annotations
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.plugins.HttpClientPlugin

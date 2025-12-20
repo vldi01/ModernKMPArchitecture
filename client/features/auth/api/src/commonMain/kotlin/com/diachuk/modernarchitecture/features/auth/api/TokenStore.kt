@@ -1,4 +1,4 @@
-package com.diachuk.modernarchitecture.features.auth
+package com.diachuk.modernarchitecture.features.auth.api
 
 import kotlin.reflect.KClass
 

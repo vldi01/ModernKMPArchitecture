@@ -6,18 +6,37 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.diachuk.modernarchitecture.features.auth.logic.RegisterViewModel
+import com.diachuk.modernarchitecture.features.auth.logic.registration.RegisterEvent
+import com.diachuk.modernarchitecture.features.auth.logic.registration.RegisterState
+import com.diachuk.modernarchitecture.features.auth.logic.registration.RegisterViewModel
+import com.diachuk.modernarchitecture.navigaion.LocalNavigator
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun RegisterScreen(viewModel: RegisterViewModel) {
-    val email by viewModel.email.collectAsState()
-    val password by viewModel.password.collectAsState()
-    val name by viewModel.name.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val error by viewModel.error.collectAsState()
+    val state by viewModel.state.collectAsState()
+
+    RegisterScreenUi(
+        state = state,
+        onEvent = viewModel::onEvent
+    )
+}
+
+@Composable
+fun RegisterScreenUi(
+    state: RegisterState,
+    onEvent: (RegisterEvent) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    val navigator = LocalNavigator.current
 
     Column(
         modifier = Modifier
@@ -32,7 +51,7 @@ fun RegisterScreen(viewModel: RegisterViewModel) {
 
         OutlinedTextField(
             value = name,
-            onValueChange = viewModel::onNameChanged,
+            onValueChange = { name = it },
             label = { Text("Name") },
             modifier = Modifier.fillMaxWidth()
         )
@@ -40,7 +59,7 @@ fun RegisterScreen(viewModel: RegisterViewModel) {
 
         OutlinedTextField(
             value = email,
-            onValueChange = viewModel::onEmailChanged,
+            onValueChange = { email = it },
             label = { Text("Email") },
             modifier = Modifier.fillMaxWidth()
         )
@@ -48,32 +67,43 @@ fun RegisterScreen(viewModel: RegisterViewModel) {
 
         OutlinedTextField(
             value = password,
-            onValueChange = viewModel::onPasswordChanged,
+            onValueChange = { password = it },
             label = { Text("Password") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (error != null) {
-            Text(text = error!!, color = MaterialTheme.colorScheme.error)
+        if (state.error != null) {
+            Text(text = state.error, color = MaterialTheme.colorScheme.error)
             Spacer(modifier = Modifier.height(8.dp))
         }
 
         Button(
-            onClick = viewModel::onRegisterClick,
-            enabled = !isLoading,
+            onClick = { onEvent(RegisterEvent.Register(name, email, password)) },
+            enabled = !state.isLoading,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(if (isLoading) "Registering..." else "Register")
+            Text(if (state.isLoading) "Registering..." else "Register")
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         TextButton(
-            onClick = viewModel::onBackClick,
+            onClick = { navigator.popBack() },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Already have an account? Login")
         }
+    }
+}
+
+@Preview
+@Composable
+fun RegisterScreenPreview() {
+    MaterialTheme {
+        RegisterScreenUi(
+            state = RegisterState(),
+            onEvent = {}
+        )
     }
 }
