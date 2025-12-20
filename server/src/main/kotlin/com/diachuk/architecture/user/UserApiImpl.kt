@@ -1,4 +1,4 @@
-package com.diachuk.architecture
+package com.diachuk.architecture.user
 
 import com.diachuk.architecture.network.api.user.CreateUserRequest
 import com.diachuk.architecture.network.api.user.SearchResponse

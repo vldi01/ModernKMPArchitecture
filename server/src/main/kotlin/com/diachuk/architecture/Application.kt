@@ -2,6 +2,8 @@ package com.diachuk.architecture
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.diachuk.architecture.network.api.auth.AuthApi
+import com.diachuk.architecture.network.api.auth.bindAuthApi
 import com.diachuk.architecture.network.api.user.UserApi
 import com.diachuk.architecture.network.api.user.bindUserApi
 import com.diachuk.architecture.network.server.configureJwt
@@ -48,8 +50,8 @@ fun Application.module() {
         configureJwt(
             JWT
                 .require(Algorithm.HMAC256("secret"))
-                .withAudience("audience")
-                .withIssuer("issuer")
+                .withAudience("http://0.0.0.0:8080/hello")
+                .withIssuer("http://0.0.0.0:8080/")
                 .build()
         )
     }
@@ -60,5 +62,6 @@ fun Application.module() {
         }
 
         bindUserApi(get<UserApi>())
+        bindAuthApi(get<AuthApi>())
     }
 }
