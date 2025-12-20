@@ -104,3 +104,17 @@ Features do not know about each other; they only know about **Destinations** def
 -   **DI:** Koin + Koin Annotations
 
 -   **Networking:** Ktor + Ktorfit + Custom KSP
+
+
+## ⚠️ Trade-offs & Friction Points
+
+Every architectural decision comes with a cost. Here is the price of admission for this template:
+
+1.  **Module Explosion:** Splitting every feature into `:api` and `:impl` doubles the module count. A project with 20 features will have 40+ Gradle modules. This requires robust `buildSrc` management and a powerful CI machine.
+
+2.  **Custom Tooling Maintenance:** The server-side routing relies on a Custom KSP Processor. You own this tool. If Ktor DSL changes significantly, you must update your generator.
+
+3.  **Database "Leakage":** To solve the KMP Room configuration cleanly, we expose `@Entity` classes in the Public API module. Architectural purists might argue this leaks implementation details, but we consider it a necessary pragmatic trade-off.
+
+4.  **Strict Contracts:** You cannot "just code." You must define your data shape and interfaces before writing UI. This slows down initial prototyping but speeds up long-term maintenance.
+
