@@ -1,5 +1,6 @@
 package com.diachuk.architecture.core
 
+import com.diachuk.architecture.network.api.auth.AuthNetworkDiModule
 import com.diachuk.architecture.network.api.user.NetworkApiDiModule
 import com.diachuk.architecture.network.core.NetworkCoreDiModule
 import com.diachuk.client.database.DatabaseModule
@@ -18,6 +19,7 @@ import org.koin.core.annotation.Single
         AuthDiModule::class,
         NavigationDi::class,
         NetworkApiDiModule::class,
+        AuthNetworkDiModule::class,
         NetworkCoreDiModule::class,
         DatabaseModule::class
     ]

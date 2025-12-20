@@ -5,6 +5,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
+            implementation(projects.client.navigation.core)
             implementation(libs.androidx.room.runtime)
             implementation(libs.kotlinx.coroutines.core)
         }
