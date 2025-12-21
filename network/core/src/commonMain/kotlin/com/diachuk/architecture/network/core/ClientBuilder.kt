@@ -5,6 +5,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
@@ -27,6 +28,11 @@ class ClientBuilder : KoinComponent {
                 })
             }
             install(Logging) {
+                logger = object : Logger {
+                    override fun log(message: String) {
+                        println("HttpClient: $message")
+                    }
+                }
                 level = LogLevel.ALL
             }
 
@@ -47,7 +53,7 @@ class ClientBuilder : KoinComponent {
     fun buildKtorfit(httpClient: HttpClient = buildMainHttpClient()): Ktorfit {
         return Ktorfit.Builder()
             .httpClient(httpClient)
-            .baseUrl("http://192.168.0.17:8080/")
+            .baseUrl("http://192.168.0.99:8080/")
             .build()
     }
 }

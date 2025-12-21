@@ -3,9 +3,6 @@ package com.diachuk.modernarchitecture.features.auth.logic.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.diachuk.architecture.network.api.auth.AuthApi
-import com.diachuk.architecture.network.api.auth.LoginRequest
-import com.diachuk.architecture.network.api.user.JwtEntity
-import com.diachuk.architecture.network.core.safeApiCall
 import com.diachuk.modernarchitecture.features.auth.api.TokenStore
 import com.diachuk.modernarchitecture.navigaion.Navigator
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,9 +13,8 @@ import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class LoginViewModel(
-    private val authApi: AuthApi,
-    private val tokenStore: TokenStore,
-    private val navigator: Navigator
+    private val navigator: Navigator,
+    private val loginUseCase: LoginUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(LoginState())
@@ -33,14 +29,13 @@ class LoginViewModel(
     private fun login(event: LoginEvent.Login) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
-            safeApiCall { authApi.login(LoginRequest(event.email, event.password)) }
-                .onSuccess { response ->
-                    tokenStore.saveToken(JwtEntity.UserToken::class, response.token)
-                    // TODO: navigate to home
+            when (val loginResult = loginUseCase.execute(event.email, event.password)) {
+                LoginResult.Success -> {
+                    // TODO: navigate to main screen
                 }
-                .onFailure { e ->
-                    _state.update { it.copy(error = e.message ?: "Login failed") }
-                }
+
+                is LoginResult.Error -> _state.update { it.copy(error = loginResult.message) }
+            }
             _state.update { it.copy(isLoading = false) }
         }
     }

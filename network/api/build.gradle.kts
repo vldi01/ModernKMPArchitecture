@@ -7,7 +7,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.network.core)
+                api(projects.network.core)
                 implementation(libs.ktor.clientCore)
                 implementation(libs.ktorfit.lib)
             }

@@ -9,6 +9,7 @@ import de.jensklingenberg.ktorfit.annotations
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.plugins.HttpClientPlugin
 import io.ktor.client.plugins.api.createClientPlugin
+import io.ktor.util.AttributeKey
 import org.koin.core.annotation.Single
 
 @Single(binds = [NetworkPluginProvider::class])
@@ -17,10 +18,6 @@ class AuthPluginProvider(private val tokenStore: TokenStore) : NetworkPluginProv
     override fun HttpClientConfig<*>.provide(): HttpClientPlugin<*, *> =
         createClientPlugin("AuthPlugin") {
             onRequest { request, _ ->
-                val authAnnotation = request.annotations
-                    .filterIsInstance<AuthJwt>()
-                    .firstOrNull()
-                    ?: AuthJwt(JwtEntity.UserToken::class)
                 val noAuthAnnotation = request.annotations
                     .filterIsInstance<NoAuth>()
                     .firstOrNull()
@@ -28,6 +25,11 @@ class AuthPluginProvider(private val tokenStore: TokenStore) : NetworkPluginProv
                 if (noAuthAnnotation != null) {
                     return@onRequest
                 }
+
+                val authAnnotation = request.annotations
+                    .filterIsInstance<AuthJwt>()
+                    .firstOrNull()
+                    ?: AuthJwt(JwtEntity.UserToken::class)
 
                 val token = tokenStore.getToken(authAnnotation.klass)
 

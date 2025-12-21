@@ -3,6 +3,7 @@ package com.diachuk.modernarchitecture.features.auth.logic.registration
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.diachuk.architecture.network.api.auth.AuthApi
+import com.diachuk.architecture.network.api.auth.AuthResponse
 import com.diachuk.architecture.network.api.auth.RegisterRequest
 import com.diachuk.architecture.network.api.user.JwtEntity
 import com.diachuk.architecture.network.core.safeApiCall
@@ -43,10 +44,13 @@ class RegisterViewModel(
                 )
             }
                 .onSuccess { response ->
-                    tokenStore.saveToken(JwtEntity.UserToken::class, response.token)
+                    if (response is AuthResponse.Authorized) {
+                        tokenStore.saveToken(JwtEntity.UserToken::class, response.token)
+                    }
                     // TODO: navigate to home
                 }
                 .onFailure { e ->
+                    println(e)
                     _state.update { it.copy(error = e.message ?: "Registration failed") }
                 }
             _state.update { it.copy(isLoading = false) }
