@@ -11,4 +11,16 @@ interface UserDao {
 
     @Insert
     suspend fun insertUser(user: UserEntity): Long
+
+    @Query("SELECT * FROM UserEntity")
+    suspend fun getAllUsers(): List<UserEntity>
+    
+    @Query("SELECT * FROM UserEntity WHERE name LIKE '%' || :query || '%' OR email LIKE '%' || :query || '%'")
+    suspend fun searchUsers(query: String): List<UserEntity>
+    
+    @Query("SELECT * FROM UserEntity WHERE id = :id")
+    suspend fun getUserById(id: Long): UserEntity?
+    
+    @Query("DELETE FROM UserEntity WHERE id = :id")
+    suspend fun deleteUserById(id: Long)
 }

@@ -10,6 +10,7 @@ kotlin {
                 // Needed for DI
                 implementation(projects.client.features.user.impl)
                 implementation(projects.client.features.auth.impl)
+                implementation(projects.client.features.home.impl)
                 implementation(projects.client.database)
 
                 implementation(projects.client.navigation.core)

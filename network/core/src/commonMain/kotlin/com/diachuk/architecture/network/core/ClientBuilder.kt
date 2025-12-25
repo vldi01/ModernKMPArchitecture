@@ -53,7 +53,7 @@ class ClientBuilder : KoinComponent {
     fun buildKtorfit(httpClient: HttpClient = buildMainHttpClient()): Ktorfit {
         return Ktorfit.Builder()
             .httpClient(httpClient)
-            .baseUrl("http://192.168.0.99:8080/")
+            .baseUrl("http://172.30.146.20:8080/")
             .build()
     }
 }

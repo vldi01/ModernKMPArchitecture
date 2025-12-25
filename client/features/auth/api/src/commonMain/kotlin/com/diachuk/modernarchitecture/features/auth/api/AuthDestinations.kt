@@ -8,3 +8,6 @@ data object LoginDestination : Destination
 
 @Serializable
 data object RegisterDestination : Destination
+
+@Serializable
+data object SplashDestination : Destination

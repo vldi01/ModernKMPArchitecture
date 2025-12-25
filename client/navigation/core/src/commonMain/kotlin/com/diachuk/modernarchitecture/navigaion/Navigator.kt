@@ -34,4 +34,8 @@ class Navigator(
         if (_backStack.value.size <= 1) return
         _backStack.value = _backStack.value.dropLast(1)
     }
+
+    fun replaceAll(destination: Destination) {
+        _backStack.value = listOf(destination)
+    }
 }

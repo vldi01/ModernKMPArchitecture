@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.diachuk.architecture.network.api.auth.AuthApi
 import com.diachuk.modernarchitecture.features.auth.api.TokenStore
+import com.diachuk.modernarchitecture.features.home.api.HomeDestination
 import com.diachuk.modernarchitecture.navigaion.Navigator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,7 +32,7 @@ class LoginViewModel(
             _state.update { it.copy(isLoading = true, error = null) }
             when (val loginResult = loginUseCase.execute(event.email, event.password)) {
                 LoginResult.Success -> {
-                    // TODO: navigate to main screen
+                    navigator.replaceAll(HomeDestination)
                 }
 
                 is LoginResult.Error -> _state.update { it.copy(error = loginResult.message) }

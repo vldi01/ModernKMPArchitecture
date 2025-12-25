@@ -8,6 +8,7 @@ import com.diachuk.architecture.network.api.auth.RegisterRequest
 import com.diachuk.architecture.network.api.user.JwtEntity
 import com.diachuk.architecture.network.core.safeApiCall
 import com.diachuk.modernarchitecture.features.auth.api.TokenStore
+import com.diachuk.modernarchitecture.features.home.api.HomeDestination
 import com.diachuk.modernarchitecture.navigaion.Navigator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,7 +48,7 @@ class RegisterViewModel(
                     if (response is AuthResponse.Authorized) {
                         tokenStore.saveToken(JwtEntity.UserToken::class, response.token)
                     }
-                    // TODO: navigate to home
+                    navigator.replaceAll(HomeDestination)
                 }
                 .onFailure { e ->
                     println(e)

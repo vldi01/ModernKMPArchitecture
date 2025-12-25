@@ -89,6 +89,28 @@ This is the **"Killer Feature"** of this template. We define our API once as a K
 
 **Result:** A change in the network interface is a compile-time error in both the Backend and the Mobile App. No more "404 Not Found" or parsing bugs.
 
+## 🛡️ Safe API Calls
+
+We recommend using `safeApiCall` for network requests in ViewModels. It wraps the network call and provides a functional API for handling success and failure.
+
+**Example:**
+```kotlin
+private fun loadUsers() {
+    viewModelScope.launch {
+        _state.update { it.copy(isLoading = true, error = null) }
+        safeApiCall { userApi.searchUsers(q = "", limit = null) }
+            .onSuccess { response ->
+                _state.update { it.copy(users = response) }
+            }
+            .onFailure { e ->
+                _state.update { it.copy(error = e.message ?: "Unknown error") }
+            }
+
+        _state.update { it.copy(isLoading = false) }
+    }
+}
+```
+
 ## 🧭 Decoupled Navigation (The Registry)
 
 Features do not know about each other; they only know about **Destinations** defined in API modules.
@@ -127,4 +149,3 @@ Every architectural decision comes with a cost. Here is the price of admission f
 3.  **Database "Leakage":** To solve the KMP Room configuration cleanly, we expose `@Entity` classes in the Public API module. Architectural purists might argue this leaks implementation details, but we consider it a necessary pragmatic trade-off.
 
 4.  **Strict Contracts:** You cannot "just code." You must define your data shape and interfaces before writing UI. This slows down initial prototyping but speeds up long-term maintenance.
-

@@ -1,7 +1,6 @@
 package com.diachuk.modernarchitecture.features.auth
 
-import com.diachuk.client.database.AppDatabase
-import com.diachuk.modernarchitecture.features.auth.api.LoginDestination
+import com.diachuk.modernarchitecture.features.auth.api.SplashDestination
 import com.diachuk.modernarchitecture.navigaion.StartDestination
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Configuration
@@ -13,5 +12,5 @@ import org.koin.core.annotation.Single
 @Configuration
 object AuthDiModule {
     @Single
-    fun provideStartDestination(): StartDestination = LoginDestination
+    fun provideStartDestination(): StartDestination = SplashDestination
 }
