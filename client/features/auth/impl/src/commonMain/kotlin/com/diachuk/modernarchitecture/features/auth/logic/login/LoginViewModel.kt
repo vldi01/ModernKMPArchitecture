@@ -2,8 +2,6 @@ package com.diachuk.modernarchitecture.features.auth.logic.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.diachuk.architecture.network.api.auth.AuthApi
-import com.diachuk.modernarchitecture.features.auth.api.TokenStore
 import com.diachuk.modernarchitecture.features.home.api.HomeDestination
 import com.diachuk.modernarchitecture.navigaion.Navigator
 import kotlinx.coroutines.flow.MutableStateFlow

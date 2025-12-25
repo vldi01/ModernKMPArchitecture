@@ -23,8 +23,8 @@ class SplashViewModel(
 
     private fun checkSession() {
         viewModelScope.launch {
-             delay(200)
-            
+            delay(200)
+
             val token = tokenStore.getToken(JwtEntity.UserToken::class)
             if (token != null) {
                 navigator.replaceAll(HomeDestination)

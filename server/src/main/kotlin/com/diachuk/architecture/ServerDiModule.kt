@@ -20,9 +20,9 @@ object ServerDiModule {
         return Room.databaseBuilder<ServerDatabase>(
             name = dbFile.absolutePath,
         )
-        .setDriver(BundledSQLiteDriver())
-        .setQueryCoroutineContext(Dispatchers.IO)
-        .build()
+            .setDriver(BundledSQLiteDriver())
+            .setQueryCoroutineContext(Dispatchers.IO)
+            .build()
     }
 
     @Single

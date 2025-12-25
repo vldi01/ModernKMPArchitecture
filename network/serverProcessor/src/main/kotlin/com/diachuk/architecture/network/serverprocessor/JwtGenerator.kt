@@ -16,9 +16,9 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.writeTo
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.AuthenticationConfig
 import io.ktor.server.auth.jwt.JWTCredential
-import io.ktor.http.HttpStatusCode
 
 class JwtGenerator(private val codeGenerator: CodeGenerator) {
 
@@ -59,7 +59,7 @@ class JwtGenerator(private val codeGenerator: CodeGenerator) {
                 parameters = arrayOf(className),
                 returnType = Any::class.asClassName().copy(nullable = true)
             ).copy(suspending = true)
-            
+
             funSpec.addParameter(
                 ParameterSpec.builder(paramName, lambdaType)
                     .defaultValue("{ it }")
@@ -70,19 +70,19 @@ class JwtGenerator(private val codeGenerator: CodeGenerator) {
         jwtClasses.forEach { ksClass ->
             val name = ksClass.simpleName.asString()
             val paramName = name.replaceFirstChar { it.lowercase() }
-            
+
             funSpec.beginControlFlow("%M(%S)", jwtFunc, name)
             funSpec.addStatement("verifier(verifier)")
-            
+
             funSpec.beginControlFlow("validate { credential ->")
 
             val isObject = ksClass.classKind == ClassKind.OBJECT
             val hasNoParams = ksClass.primaryConstructor?.parameters.isNullOrEmpty()
 
             if (isObject) {
-                 funSpec.addStatement("val token = %T", ksClass.toClassName())
+                funSpec.addStatement("val token = %T", ksClass.toClassName())
             } else if (hasNoParams) {
-                 funSpec.addStatement("val token = %T()", ksClass.toClassName())
+                funSpec.addStatement("val token = %T()", ksClass.toClassName())
             } else {
                 funSpec.addStatement("val decodedJwt = credential.payload as? %T", decodedJwtClass)
                 funSpec.beginControlFlow("if (decodedJwt == null)")
@@ -90,10 +90,14 @@ class JwtGenerator(private val codeGenerator: CodeGenerator) {
                 funSpec.endControlFlow()
 
                 funSpec.addStatement("val payloadString = String(java.util.Base64.getUrlDecoder().decode(decodedJwt.payload))")
-                
+
                 funSpec.beginControlFlow("val token = try")
                 // Use the private json property
-                funSpec.addStatement("json.%M<%T>(payloadString)", decodeFromStringMember, ksClass.toClassName())
+                funSpec.addStatement(
+                    "json.%M<%T>(payloadString)",
+                    decodeFromStringMember,
+                    ksClass.toClassName()
+                )
                 funSpec.nextControlFlow("catch (e: Exception)")
                 funSpec.addStatement("e.printStackTrace()")
                 funSpec.addStatement("return@validate null")
@@ -101,18 +105,22 @@ class JwtGenerator(private val codeGenerator: CodeGenerator) {
             }
 
             funSpec.addStatement("%L(token)", paramName)
-            
+
             funSpec.endControlFlow() // validate
 
             funSpec.beginControlFlow("challenge { _, _ ->")
-            funSpec.addStatement("call.%M(%T.Unauthorized, \"Token is not valid or has expired\")", respondFunc, httpStatusCodeClass)
+            funSpec.addStatement(
+                "call.%M(%T.Unauthorized, \"Token is not valid or has expired\")",
+                respondFunc,
+                httpStatusCodeClass
+            )
             funSpec.endControlFlow() // challenge
 
             funSpec.endControlFlow() // jwt block
         }
 
         fileSpec.addFunction(funSpec.build())
-        
+
         val sources = jwtClasses.mapNotNull { it.containingFile }.toTypedArray()
         fileSpec.build().writeTo(codeGenerator, Dependencies(true, *sources))
     }

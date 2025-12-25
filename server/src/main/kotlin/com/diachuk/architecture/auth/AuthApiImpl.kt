@@ -19,7 +19,6 @@ import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.double
 import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.encodeToJsonElement
-import kotlinx.serialization.json.floatOrNull
 import kotlinx.serialization.json.long
 import kotlinx.serialization.json.longOrNull
 import org.koin.core.annotation.Single
@@ -84,10 +83,12 @@ class AuthApiImpl(
                         else if (value.longOrNull != null) withClaim(key, value.long)
                         else if (value.doubleOrNull != null) withClaim(key, value.double)
                     }
+
                     is JsonArray -> {
                         val list = value.mapNotNull { (it as? JsonPrimitive)?.content }
                         withClaim(key, list)
                     }
+
                     else -> {}
                 }
             }

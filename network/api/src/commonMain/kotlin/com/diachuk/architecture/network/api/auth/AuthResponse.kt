@@ -7,8 +7,10 @@ import kotlinx.serialization.Serializable
 sealed interface AuthResponse {
     @Serializable
     data class Authorized(val token: String) : AuthResponse
+
     @Serializable
     data object InvalidCredentials : AuthResponse, ErrorResponse
+
     @Serializable
     data object UserAlreadyExists : AuthResponse, ErrorResponse
 }

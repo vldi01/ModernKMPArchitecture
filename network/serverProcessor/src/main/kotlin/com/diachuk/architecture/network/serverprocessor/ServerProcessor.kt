@@ -52,6 +52,7 @@ class ServerProcessor(
 
         jwtGenerator.generate(jwtClasses)
 
-        return (symbols.filterNot { it.validate() } + jwtSymbols.filterNot { it.validate() }).distinct().toList()
+        return (symbols.filterNot { it.validate() } + jwtSymbols.filterNot { it.validate() }).distinct()
+            .toList()
     }
 }

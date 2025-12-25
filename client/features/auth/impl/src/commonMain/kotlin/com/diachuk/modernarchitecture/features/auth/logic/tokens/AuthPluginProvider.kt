@@ -9,7 +9,6 @@ import de.jensklingenberg.ktorfit.annotations
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.plugins.HttpClientPlugin
 import io.ktor.client.plugins.api.createClientPlugin
-import io.ktor.util.AttributeKey
 import org.koin.core.annotation.Single
 
 @Single(binds = [NetworkPluginProvider::class])
