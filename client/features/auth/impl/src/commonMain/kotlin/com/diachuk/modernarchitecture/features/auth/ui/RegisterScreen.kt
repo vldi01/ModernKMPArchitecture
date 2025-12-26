@@ -22,10 +22,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.diachuk.modernarchitecture.client.resources.Res
+import com.diachuk.modernarchitecture.client.resources.email
+import com.diachuk.modernarchitecture.client.resources.login_hint
+import com.diachuk.modernarchitecture.client.resources.name
+import com.diachuk.modernarchitecture.client.resources.password
+import com.diachuk.modernarchitecture.client.resources.register
+import com.diachuk.modernarchitecture.client.resources.registering
 import com.diachuk.modernarchitecture.features.auth.logic.registration.RegisterEvent
 import com.diachuk.modernarchitecture.features.auth.logic.registration.RegisterState
 import com.diachuk.modernarchitecture.features.auth.logic.registration.RegisterViewModel
 import com.diachuk.modernarchitecture.navigaion.LocalNavigator
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -56,13 +64,13 @@ fun RegisterScreenUi(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Register", style = MaterialTheme.typography.headlineMedium)
+        Text(stringResource(Res.string.register), style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text("Name") },
+            label = { Text(stringResource(Res.string.name)) },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -70,7 +78,7 @@ fun RegisterScreenUi(
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email") },
+            label = { Text(stringResource(Res.string.email)) },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -78,7 +86,7 @@ fun RegisterScreenUi(
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") },
+            label = { Text(stringResource(Res.string.password)) },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -93,7 +101,7 @@ fun RegisterScreenUi(
             enabled = !state.isLoading,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(if (state.isLoading) "Registering..." else "Register")
+            Text(if (state.isLoading) stringResource(Res.string.registering) else stringResource(Res.string.register))
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -102,7 +110,7 @@ fun RegisterScreenUi(
             onClick = { navigator.popBack() },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Already have an account? Login")
+            Text(stringResource(Res.string.login_hint))
         }
     }
 }

@@ -22,11 +22,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.diachuk.modernarchitecture.client.resources.Res
+import com.diachuk.modernarchitecture.client.resources.email
+import com.diachuk.modernarchitecture.client.resources.logging_in
+import com.diachuk.modernarchitecture.client.resources.login
+import com.diachuk.modernarchitecture.client.resources.password
+import com.diachuk.modernarchitecture.client.resources.register_hint
 import com.diachuk.modernarchitecture.features.auth.api.RegisterDestination
 import com.diachuk.modernarchitecture.features.auth.logic.login.LoginEvent
 import com.diachuk.modernarchitecture.features.auth.logic.login.LoginState
 import com.diachuk.modernarchitecture.features.auth.logic.login.LoginViewModel
 import com.diachuk.modernarchitecture.navigaion.LocalNavigator
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -56,13 +63,13 @@ fun LoginScreenUi(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Login", style = MaterialTheme.typography.headlineMedium)
+        Text(stringResource(Res.string.login), style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email") },
+            label = { Text(stringResource(Res.string.email)) },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -70,7 +77,7 @@ fun LoginScreenUi(
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") },
+            label = { Text(stringResource(Res.string.password)) },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -85,7 +92,7 @@ fun LoginScreenUi(
             enabled = !state.isLoading,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(if (state.isLoading) "Logging in..." else "Login")
+            Text(if (state.isLoading) stringResource(Res.string.logging_in) else stringResource(Res.string.login))
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -94,7 +101,7 @@ fun LoginScreenUi(
             onClick = { navigator.navigate(RegisterDestination) },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Don't have an account? Register")
+            Text(stringResource(Res.string.register_hint))
         }
     }
 }

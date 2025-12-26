@@ -1,5 +1,42 @@
 # Technical Documentation
 
+## Getting Started
+
+### Prerequisites
+* **JDK:** 17 (Required for Android/Gradle).
+* **Android Studio:** Ladybug (2024.2.1) or newer.
+* **Xcode:** 15+ (Required only if building the iOS target).
+
+### Setup Guide
+1.  **Clone the Repo:**
+    ```bash
+    git clone https://github.com/vladyslavdiachuk/ModernArchitecture.git
+    ```
+2.  **Sync Gradle:** Open the project in Android Studio. Wait for the indexing to complete.
+3.  **Verify Environment:**
+    * Ensure your `local.properties` has `sdk.dir` pointing to your Android SDK.
+    * (Optional) If you plan to run iOS from Android Studio, ensure the KMM plugin is active.
+
+### Running the Application
+#### 1. Backend (Server)
+The client needs the backend to be running to function correctly.
+* **Terminal:** Run `./gradlew :server:run`
+* **Address:** The server defaults to `0.0.0.0:8080`.
+    * *Note:* The Android Emulator will access this via `10.0.2.2:8080`.
+    * *Note:* The iOS Simulator will access this via `localhost:8080`.
+
+#### 2. Client (Android)
+* Select the `composeApp` configuration in the toolbar.
+* Select an Emulator (API 26+).
+* Click **Run**.
+
+#### 3. Client (iOS)
+* Open `iosApp/iosApp.xcodeproj` in Xcode OR select the `iosApp` configuration in Android Studio.
+* Select a Simulator.
+* Click **Run**.
+
+---
+
 ## Architecture Overview
 
 This project implements a **Contract-First**, **Kotlin Multiplatform (KMP)** architecture. It is designed to maximize code sharing between Client (Android, iOS, Desktop) and Server (Ktor), while ensuring strict separation of concerns within the client application.
@@ -35,6 +72,7 @@ The client application is composed of a generic core, a centralized database, an
 *   **`database/`**: Centralized **Room** database configuration.
     *   *Key Class:* `AppDatabase`.
     *   *Configuration:* It aggregates `@Entity` classes from various feature API modules (e.g., `UserEntity` from `features/user/api`).
+*   **`resources/`**: Centralized UI resources (Strings, Drawables, Fonts). Used by all feature modules to ensure consistency.
 *   **`features/`**: Vertical slices of functionality (Auth, Home, User). Each feature is split into:
     *   **`:api` Module**:
         *   **Purpose**: The public face of the feature.
@@ -123,6 +161,15 @@ This is the main entry point for the client applications.
     }
     ```
 
+### Resources (KMP)
+* **Library:** `compose.components.resources` (Jetbrains).
+* **Location:** `client/resources/src/commonMain/composeResources`.
+    * `drawable/`: Images and SVGs.
+    * `values/`: `strings.xml` for localization.
+* **Usage:**
+    * In Compose: `stringResource(Res.string.my_string)`
+    * *Note:* Resources are generated at build time into the `Res` object.
+
 ### Database (Room KMP)
 *   **Library:** **androidx.room** (KMP version) + **SQLite**.
 *   **Architecture:**
@@ -130,6 +177,12 @@ This is the main entry point for the client applications.
     *   The Database module (`:client:database`) depends on all Feature API modules.
     *   `AppDatabase` includes these entities in its `entities` array.
     *   DAOs are defined in Feature APIs but implemented by Room in the Database module.
+*   **Schema Management:**
+    *   Schemas are exported to `client/database/schemas`.
+    *   This is configured in `client/database/build.gradle.kts` via `room { schemaDirectory(...) }`.
+    *   JSON schema files (e.g., `1.json`) should be committed to version control to track database changes.
+*   **Pre-population:**
+    *   The database is currently **empty** on first launch (no pre-population).
 
 ### Navigation
 *   **Library:** **Navigation3** (Compose Multiplatform).
@@ -158,6 +211,84 @@ com.diachuk.modernarchitecture.features.auth
 ├── navigation/   # ScreenInjector implementation
 └── di/           # Koin Module definition
 ```
+
+## State Management
+
+We use a **Unidirectional Data Flow (UDF)** pattern, similar to MVI (Model-View-Intent).
+
+### Pattern
+1.  **State**: An immutable data class (e.g., `LoginState`) holding all data required for the UI.
+2.  **Events**: Sealed interfaces (e.g., `LoginEvent`) representing user actions or system events.
+3.  **ViewModel**:
+    *   Holds the state in a `MutableStateFlow`.
+    *   Exposes it as a read-only `StateFlow`.
+    *   Processes events via a single public method `onEvent(event: LoginEvent)`.
+    *   Updates state using `.update { ... }`.
+
+### Error Handling
+*   **Network Errors**: Exceptions are caught in `safeApiCall` and mapped to a `Result`.
+*   **UI Consumption**: Errors are currently handled **individually** by each ViewModel. The error message is stored in the State (e.g., `state.error`) and displayed by the UI (e.g., via a Text field or simple conditional rendering).
+*   *Note*: There is currently no global "Snackbar Event Bus". Each feature manages its own error presentation locally.
+
+#### Example ViewModel
+```kotlin
+@KoinViewModel
+class LoginViewModel(private val useCase: LoginUseCase) : ViewModel() {
+
+    private val _state = MutableStateFlow(LoginState())
+    val state = _state.asStateFlow()
+
+    fun onEvent(event: LoginEvent) {
+        when (event) {
+            is LoginEvent.Login -> login(event)
+        }
+    }
+
+    private fun login(event: LoginEvent.Login) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, error = null) }
+            
+            val result = useCase.execute(event.email, event.password)
+            
+            // Handle Success/Error locally
+            when (result) {
+                LoginResult.Success -> { /* Navigate */ }
+                is LoginResult.Error -> _state.update { it.copy(error = result.message) }
+            }
+            
+            _state.update { it.copy(isLoading = false) }
+        }
+    }
+}
+```
+
+## Security & Authentication Flow
+
+### Token Storage
+Tokens are stored using a **Room Database** table (`TokenEntity`) accessed via a `TokenStore` interface.
+*   **Location**: `client/database` (SQLite).
+*   **Encryption**: Currently, tokens are stored in **plain text**. For production apps handling sensitive data, this should be replaced with EncryptedSharedPreferences (Android) and Keychain (iOS).
+
+> [!WARNING]
+> **Security Critical:**
+> Storing tokens in plain text in a database is highly insecure and is done here for **demonstration purposes only**.
+> In a production environment, you **MUST** replace this implementation with secure storage solutions:
+> *   **Android**: `EncryptedSharedPreferences` or `androidx.security.crypto.EncryptedFile`.
+> *   **iOS**: `Keychain` (e.g., via a KMP wrapper library like `Settings` or dedicated Keychain library).
+
+### Interceptor Logic
+The application uses a custom Ktor Client Plugin (`AuthPluginProvider`) to automatically inject tokens into HTTP requests.
+1.  **Resolution**: The `AuthTokenResolver` inspects the request's Ktorfit annotations.
+    *   If `@NoAuth` is present: No header is added.
+    *   If `@AuthJwt` is present: It fetches the token for the specified class (e.g., `UserToken`) from `TokenStore`.
+    *   Default: Uses `UserToken`.
+2.  **Injection**: Adds `Authorization: Bearer <token>` header if a token is found.
+
+### Refresh Logic
+There is currently **no automatic token refresh** logic.
+*   **Expiration**: If a token expires, the server returns a `401 Unauthorized`.
+*   **Handling**: This error is caught by `safeApiCall` and returned as a `NetworkException.ApiError`.
+*   **Action**: The ViewModel receives this error and is responsible for handling it (e.g., navigating to Login).
 
 ## Testing
 

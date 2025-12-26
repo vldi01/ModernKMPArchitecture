@@ -37,9 +37,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.diachuk.architecture.network.api.user.User
+import com.diachuk.modernarchitecture.client.resources.Res
+import com.diachuk.modernarchitecture.client.resources.error_loading_users
+import com.diachuk.modernarchitecture.client.resources.home_title
+import com.diachuk.modernarchitecture.client.resources.logout
+import com.diachuk.modernarchitecture.client.resources.no_users_found
 import com.diachuk.modernarchitecture.features.home.logic.HomeEvent
 import com.diachuk.modernarchitecture.features.home.logic.HomeState
 import com.diachuk.modernarchitecture.features.home.logic.HomeViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -57,12 +63,12 @@ fun HomeScreenUi(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Home") },
+                title = { Text(stringResource(Res.string.home_title)) },
                 actions = {
                     IconButton(onClick = { onEvent(HomeEvent.OnLogoutClick) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                            contentDescription = "Logout"
+                            contentDescription = stringResource(Res.string.logout)
                         )
                     }
                 },
@@ -94,7 +100,7 @@ fun HomeScreenUi(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Error loading users",
+                            text = stringResource(Res.string.error_loading_users),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.error
                         )
@@ -114,7 +120,7 @@ fun HomeScreenUi(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "No users found",
+                                text = stringResource(Res.string.no_users_found),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )

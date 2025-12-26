@@ -12,6 +12,7 @@ kotlin {
             implementation(projects.client.navigation.core)
             implementation(projects.network.api)
             implementation(projects.network.core)
+            implementation(projects.client.resources)
             implementation(libs.ktorfit.lib)
             implementation(libs.androidx.room.runtime)
         }

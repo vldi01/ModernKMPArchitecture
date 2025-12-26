@@ -16,6 +16,8 @@ kotlin {
                 implementation(projects.client.navigation.core)
                 implementation(projects.network.api)
                 implementation(projects.network.core)
+                
+                implementation(projects.client.resources)
             }
         }
     }
