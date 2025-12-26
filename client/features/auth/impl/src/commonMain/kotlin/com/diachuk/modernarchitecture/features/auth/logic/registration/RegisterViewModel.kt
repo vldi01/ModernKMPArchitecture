@@ -2,12 +2,7 @@ package com.diachuk.modernarchitecture.features.auth.logic.registration
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.diachuk.architecture.network.api.auth.AuthApi
-import com.diachuk.architecture.network.api.auth.AuthResponse
 import com.diachuk.architecture.network.api.auth.RegisterRequest
-import com.diachuk.architecture.network.api.user.JwtEntity
-import com.diachuk.architecture.network.core.safeApiCall
-import com.diachuk.modernarchitecture.features.auth.api.TokenStore
 import com.diachuk.modernarchitecture.features.home.api.HomeDestination
 import com.diachuk.modernarchitecture.navigaion.Navigator
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,9 +13,8 @@ import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class RegisterViewModel(
-    private val authApi: AuthApi,
-    private val tokenStore: TokenStore,
-    private val navigator: Navigator
+    private val navigator: Navigator,
+    private val registerUseCase: RegisterUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(RegisterState())
@@ -35,25 +29,16 @@ class RegisterViewModel(
     private fun register(event: RegisterEvent.Register) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
-            safeApiCall {
-                authApi.register(
-                    RegisterRequest(
-                        name = event.name,
-                        email = event.email,
-                        password = event.password
-                    )
-                )
+            val request = RegisterRequest(
+                name = event.name,
+                email = event.email,
+                password = event.password
+            )
+            
+            when (val result = registerUseCase.execute(request)) {
+                RegisterResult.Success -> navigator.replaceAll(HomeDestination)
+                is RegisterResult.Error -> _state.update { it.copy(error = result.message) }
             }
-                .onSuccess { response ->
-                    if (response is AuthResponse.Authorized) {
-                        tokenStore.saveToken(JwtEntity.UserToken::class, response.token)
-                    }
-                    navigator.replaceAll(HomeDestination)
-                }
-                .onFailure { e ->
-                    println(e)
-                    _state.update { it.copy(error = e.message ?: "Registration failed") }
-                }
             _state.update { it.copy(isLoading = false) }
         }
     }

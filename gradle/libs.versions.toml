@@ -12,21 +12,22 @@ androidx-testExt = "1.3.0"
 composeHotReload = "1.0.0"
 composeMultiplatform = "1.9.3"
 junit = "4.13.2"
-kotlin = "2.2.21"
-kotlin-ksp = "2.3.0"
+kotlin = "2.3.0"
+kotlin-ksp = "2.3.3"
 kotlinx-coroutines = "1.10.2"
 kotlinpoet = "2.2.0"
 ktor = "3.3.3"
-ktorfitVersion = "2.6.5"
-logback = "1.5.22"
+ktorfitVersion = "2.7.1"
+logback = "1.5.23"
 koin-bom = "4.1.1"
 koin-annotations = "2.3.1"
-nav3jetbrains = "1.0.0-alpha06"
+nav3jetbrains = "1.1.0-alpha01"
 nav3Core = "1.0.0"
-lifecycleViewmodelNav3 = "2.10.0-alpha04"
+lifecycleViewmodelNav3 = "2.10.0-alpha07"
 kotlinxSerialization = "1.9.0"
 room = "2.8.4"
 sqlite = "2.6.2"
+mokkery = "3.1.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -42,6 +43,7 @@ androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 ktorfit-lib = { module = "de.jensklingenberg.ktorfit:ktorfit-lib", version.ref = "ktorfitVersion" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 ktor-serverCore = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
@@ -58,6 +60,7 @@ ktor-clientAndroid = { module = "io.ktor:ktor-client-android", version.ref = "kt
 ktor-clientDarwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 ktor-clientOkHttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-clientJs = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
+ktor-clientMock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 
 android-tools-build-gradle = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -104,3 +107,4 @@ kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp" }
 androidx-room = { id = "androidx.room", version.ref = "room" }
+mokkery = { id = "dev.mokkery", version.ref = "mokkery" }

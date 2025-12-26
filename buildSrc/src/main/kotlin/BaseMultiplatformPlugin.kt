@@ -17,6 +17,7 @@ class BaseMultiplatformPlugin : Plugin<Project> {
                 plugin(libs.plugins.androidLibrary.get().pluginId)
                 plugin(libs.plugins.ksp.get().pluginId)
                 plugin(libs.plugins.kotlin.serialization.get().pluginId)
+                plugin(libs.plugins.mokkery.get().pluginId)
             }
             setupKotlin()
             setupAndroid()
@@ -69,6 +70,7 @@ class BaseMultiplatformPlugin : Plugin<Project> {
             }
             sourceSets.commonTest.dependencies {
                 implementation(kotlin("test"))
+                implementation(libs.kotlinx.coroutines.test)
             }
 
             sourceSets.commonMain {

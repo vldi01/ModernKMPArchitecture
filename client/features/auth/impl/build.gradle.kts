@@ -15,6 +15,9 @@ kotlin {
             implementation(libs.ktorfit.lib)
             implementation(libs.androidx.room.runtime)
         }
+        commonTest.dependencies {
+            implementation(libs.ktor.clientMock)
+        }
         androidMain.dependencies {
             implementation(compose.uiTooling)
         }
