@@ -8,7 +8,7 @@ enterprise-scale applications. It bridges the gap between frontend and backend u
 
 ## 🚀 Key Philosophy
 
-1.  **Contract-First:** API interfaces are defined once in a shared module (`:network`) and drive both the Client's HTTP requests (via Ktorfit) and the Server's routing logic (via a custom KSP processor). This guarantees full-stack type safety.
+1.  **Contract-First (Kotlin Interface as Source of Truth):** API interfaces are defined once in a shared module (`:network`) and drive both the Client's HTTP requests (via Ktorfit) and the Server's routing logic (via a custom KSP processor). Unlike traditional Schema-First approaches (e.g., OpenAPI), here the **code** is the contract, guaranteeing full-stack type safety without external YAML files.
 2.  **API/Impl Separation:** Feature modules are split into `:api` (public contract) and `:impl` (private implementation) to enforce strict encapsulation and speed up incremental build times.
 3.  **"Just-in-Time" Architecture:** We reject the dogma of "Clean Architecture" that forces premature abstraction. Repositories or UseCases are created only when logic becomes complex or requires offline-first capabilities. Simplicity is the default.
 4.  **Functional Package Structure:** The internal structure of features follows a functional approach (e.g., `ui/`, `logic/`, `data/`) rather than rigid layering, minimizing boilerplate for simple features.
@@ -22,9 +22,6 @@ enterprise-scale applications. It bridges the gap between frontend and backend u
 
 ### Setup Guide
 1.  **Clone the Repo:**
-    ```bash
-    git clone https://github.com/vladyslavdiachuk/ModernArchitecture.git
-    ```
 2.  **Sync Gradle:** Open the project in Android Studio and wait for indexing to complete.
 3.  **Verify Environment:**
     *   Ensure your `local.properties` has `sdk.dir` pointing to your Android SDK.
@@ -60,7 +57,7 @@ This is the heart of the full-stack architecture. It defines the contract betwee
 
 ### 2. `client/` (Frontend Application)
 The client application, composed of a generic core, a database layer, and modularized features.
-*   **`core/`**: The client entry point and generic utilities. Kept small to avoid frequent recompilation.
+*   **`core/`**: The client entry point and generic utilities. It depends on all feature `:impl` modules to aggregate the full Dependency Injection graph.
 *   **`database/`**: Centralized **Room** (KMP) database configuration. It aggregates `@Entity` classes from various feature API modules.
 *   **`navigation/`**: A decoupled navigation engine based on the registry pattern.
 *   **`resources/`**: Centralized UI resources (Strings, Drawables, Fonts) used by all feature modules.
@@ -69,7 +66,7 @@ The client application, composed of a generic core, a database layer, and modula
 ### 3. `composeApp/` (Application Shell)
 The main entry point for the client applications.
 *   **Role**: Acts as the "Shell" that hosts the KMP application UI.
-*   **Responsibilities**: Contains platform-specific bootstrapping (`MainActivity` for Android, `Main.kt` for Desktop, `MainViewController` for iOS), initializes Koin, and sets up the root UI.
+*   **Responsibilities**: Contains platform-specific bootstrapping (`MainActivity` for Android, `Main.kt` for Desktop, `MainViewController` for iOS), initializes Koin (delegating to `client:core`), and sets up the root UI.
 
 ### 4. `server/` (Backend Application)
 A **Ktor** server application that implements the shared `network` contract.
@@ -81,6 +78,89 @@ Uses Gradle Convention Plugins to centralize and manage build logic, preventing 
 
 ---
 
+## Module Graph
+
+```mermaid
+%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {"primaryTextColor":"#fff","primaryColor":"#5a4f7c","primaryBorderColor":"#5a4f7c","lineColor":"#f5a623","tertiaryColor":"#40375c","fontSize":"12px"}
+  }
+}%%
+
+graph LR
+  :composeApp["composeApp"]
+  :server["server"]
+  subgraph :client
+    :client:database["database"]
+    :client:core["core"]
+    :client:database["database"]
+    :client:resources["resources"]
+    :client:core["core"]
+    subgraph :features
+      subgraph :user
+        :client:features:user:api["api"]
+        :client:features:user:impl["impl"]
+        :client:features:user:impl["impl"]
+      end
+      subgraph :auth
+        :client:features:auth:api["api"]
+        :client:features:auth:impl["impl"]
+        :client:features:auth:api["api"]
+        :client:features:auth:impl["impl"]
+      end
+      subgraph :home
+        :client:features:home:impl["impl"]
+        :client:features:home:api["api"]
+        :client:features:home:api["api"]
+        :client:features:home:impl["impl"]
+      end
+    end
+    subgraph :navigation
+      :client:navigation:core["core"]
+    end
+  end
+  subgraph :network
+    :network:api["api"]
+    :network:core["core"]
+    :network:serverProcessor["serverProcessor"]
+    :network:api["api"]
+    :network:serverProcessor["serverProcessor"]
+    :network:core["core"]
+    :network:api["api"]
+  end
+
+  :client:database --> :client:features:user:api
+  :client:database --> :client:features:auth:api
+  :client:features:user:impl --> :client:features:user:api
+  :network:api --> :network:core
+  :network:api --> :network:serverProcessor
+  :client:core --> :client:features:user:impl
+  :client:core --> :client:features:auth:impl
+  :client:core --> :client:features:home:impl
+  :client:core --> :client:database
+  :client:core --> :client:navigation:core
+  :client:core --> :network:api
+  :client:core --> :network:core
+  :client:core --> :client:resources
+  :client:features:home:api --> :client:navigation:core
+  :composeApp --> :client:core
+  :client:features:auth:api --> :client:navigation:core
+  :client:features:auth:impl --> :client:features:auth:api
+  :client:features:auth:impl --> :client:features:home:api
+  :client:features:auth:impl --> :client:navigation:core
+  :client:features:auth:impl --> :network:api
+  :client:features:auth:impl --> :network:core
+  :client:features:auth:impl --> :client:resources
+  :client:features:home:impl --> :client:features:home:api
+  :client:features:home:impl --> :client:navigation:core
+  :client:features:home:impl --> :network:api
+  :client:features:home:impl --> :network:core
+  :client:features:home:impl --> :client:resources
+  :client:features:home:impl --> :client:features:auth:api
+  :network:serverProcessor --> :network:core
+  :server --> :network:api
+```
 ## 🧩 The API/Impl Split Pattern
 
 To ensure lightning-fast incremental builds and strict encapsulation, every feature in `:features` is divided into two Gradle modules.

@@ -1,3 +1,5 @@
+import dev.iurysouza.modulegraph.Theme
+
 plugins {
     // this is necessary to avoid the plugins to be loaded multiple times
     // in each subproject's classloader
@@ -15,6 +17,19 @@ plugins {
 }
 
 moduleGraphConfig {
-    readmePath.set("${rootDir}/ModulesStructure.md")
     nestingEnabled.set(true)
+    heading.set("## Module Graph")
+    theme.set(
+        Theme.BASE(
+            mapOf(
+                "primaryTextColor" to "#fff",
+                "primaryColor" to "#5a4f7c",
+                "primaryBorderColor" to "#5a4f7c",
+                "lineColor" to "#f5a623",
+                "tertiaryColor" to "#40375c",
+                "fontSize" to "12px",
+            ),
+            focusColor = "#FA8140"
+        ),
+    )
 }
