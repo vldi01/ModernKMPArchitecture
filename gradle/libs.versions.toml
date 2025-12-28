@@ -28,6 +28,7 @@ kotlinxSerialization = "1.9.0"
 room = "2.8.4"
 sqlite = "2.6.2"
 mokkery = "3.1.1"
+moduleGraph = "0.13.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -108,3 +109,4 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 ksp = { id = "com.google.devtools.ksp" }
 androidx-room = { id = "androidx.room", version.ref = "room" }
 mokkery = { id = "dev.mokkery", version.ref = "mokkery" }
+moduleGraph = { id = "dev.iurysouza.modulegraph", version.ref = "moduleGraph" }

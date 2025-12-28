@@ -21,7 +21,6 @@ room {
 }
 
 dependencies {
-    implementation(projects.client.core)
     implementation(projects.network.api)
     implementation(libs.logback)
     implementation(libs.ktor.clientCore)
@@ -42,5 +41,4 @@ dependencies {
     ksp(libs.koin.ksp.compiler)
     testImplementation(libs.ktor.serverTestHost)
     testImplementation(libs.kotlin.testJunit)
-    ksp(projects.network.serverProcessor)
 }

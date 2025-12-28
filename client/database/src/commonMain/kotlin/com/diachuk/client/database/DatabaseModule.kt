@@ -1,6 +1,7 @@
 package com.diachuk.client.database
 
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import com.diachuk.modernarchitecture.features.user.api.UserDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import org.koin.core.annotation.ComponentScan
@@ -23,4 +24,9 @@ object DatabaseModule {
 
     @Single
     fun provideTokenDao(appDatabase: AppDatabase) = appDatabase.tokenDao()
+
+    @Single
+    fun provideUserDao(database: AppDatabase): UserDao {
+        return database.userDao()
+    }
 }

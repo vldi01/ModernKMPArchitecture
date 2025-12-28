@@ -11,5 +11,10 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ktor) apply false
     alias(libs.plugins.mokkery) apply false
-    id("dev.iurysouza.modulegraph") version "0.13.0"
+    alias(libs.plugins.moduleGraph)
+}
+
+moduleGraphConfig {
+    readmePath.set("${rootDir}/ModulesStructure.md")
+    nestingEnabled.set(true)
 }

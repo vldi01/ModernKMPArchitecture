@@ -8,37 +8,50 @@
 }%%
 
 graph LR
+  :composeApp["composeApp"]
+  :server["server"]
   subgraph :client
     :client:database["database"]
     :client:core["core"]
+    :client:database["database"]
     :client:resources["resources"]
-  end
-  subgraph :client:features:auth
-    :client:features:auth:api["api"]
-    :client:features:auth:impl["impl"]
-  end
-  subgraph :client:features:home
-    :client:features:home:impl["impl"]
-    :client:features:home:api["api"]
-  end
-  subgraph :client:features:user
-    :client:features:user:api["api"]
-    :client:features:user:impl["impl"]
-  end
-  subgraph :client:navigation
-    :client:navigation:processor["processor"]
-    :client:navigation:core["core"]
+    :client:core["core"]
+    subgraph :features
+      subgraph :user
+        :client:features:user:api["api"]
+        :client:features:user:impl["impl"]
+        :client:features:user:impl["impl"]
+      end
+      subgraph :auth
+        :client:features:auth:api["api"]
+        :client:features:auth:impl["impl"]
+        :client:features:auth:api["api"]
+        :client:features:auth:impl["impl"]
+      end
+      subgraph :home
+        :client:features:home:impl["impl"]
+        :client:features:home:api["api"]
+        :client:features:home:api["api"]
+        :client:features:home:impl["impl"]
+      end
+    end
+    subgraph :navigation
+      :client:navigation:core["core"]
+    end
   end
   subgraph :network
     :network:api["api"]
     :network:core["core"]
     :network:serverProcessor["serverProcessor"]
+    :network:api["api"]
+    :network:serverProcessor["serverProcessor"]
+    :network:core["core"]
+    :network:api["api"]
   end
-  :client:navigation:processor --> :client:navigation:core
+
   :client:database --> :client:features:user:api
   :client:database --> :client:features:auth:api
   :client:features:user:impl --> :client:features:user:api
-  :client:features:user:impl --> :client:database
   :network:api --> :network:core
   :network:api --> :network:serverProcessor
   :client:core --> :client:features:user:impl
@@ -54,20 +67,16 @@ graph LR
   :client:features:auth:api --> :client:navigation:core
   :client:features:auth:impl --> :client:features:auth:api
   :client:features:auth:impl --> :client:features:home:api
-  :client:features:auth:impl --> :client:database
   :client:features:auth:impl --> :client:navigation:core
   :client:features:auth:impl --> :network:api
   :client:features:auth:impl --> :network:core
   :client:features:auth:impl --> :client:resources
   :client:features:home:impl --> :client:features:home:api
-  :client:features:home:impl --> :client:database
   :client:features:home:impl --> :client:navigation:core
   :client:features:home:impl --> :network:api
   :client:features:home:impl --> :network:core
   :client:features:home:impl --> :client:resources
   :client:features:home:impl --> :client:features:auth:api
   :network:serverProcessor --> :network:core
-  :server --> :client:core
   :server --> :network:api
-  :server --> :network:serverProcessor
 ```
