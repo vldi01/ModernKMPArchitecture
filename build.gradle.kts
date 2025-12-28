@@ -11,4 +11,5 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ktor) apply false
     alias(libs.plugins.mokkery) apply false
+    id("dev.iurysouza.modulegraph") version "0.13.0"
 }
