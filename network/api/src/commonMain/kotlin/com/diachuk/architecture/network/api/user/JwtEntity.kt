@@ -1,12 +1,13 @@
 package com.diachuk.architecture.network.api.user
 
+import com.diachuk.architecture.network.core.DefaultJwtType
 import com.diachuk.architecture.network.core.JwtType
 import kotlinx.serialization.Serializable
 
 @Serializable
 sealed interface JwtEntity {
     @Serializable
-    @JwtType
+    @DefaultJwtType
     data class UserToken(val userId: String) : JwtEntity
 
     @Serializable

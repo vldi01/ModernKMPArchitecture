@@ -1,5 +1,6 @@
 package com.diachuk.architecture.network.serverprocessor
 
+import com.diachuk.architecture.network.core.DefaultJwtType
 import com.diachuk.architecture.network.core.JwtType
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
@@ -38,21 +39,31 @@ class ServerProcessor(
 
         val validSymbols = symbols.filter { it.validate() }.toList()
 
+        val defaultJwtSymbols = resolver.getSymbolsWithAnnotation(DefaultJwtType::class.qualifiedName!!).toList()
+        if (defaultJwtSymbols.size > 1) {
+            throw IllegalArgumentException("Only one class can be annotated with @DefaultJwtType")
+        }
+        val defaultJwtClass = defaultJwtSymbols.firstOrNull() as? KSClassDeclaration
+        if (defaultJwtSymbols.isNotEmpty() && defaultJwtClass == null) {
+            logger.error("@DefaultJwtType must be applied to a class", defaultJwtSymbols.first())
+        }
+
         val interfaces = validSymbols.filterIsInstance<KSFunctionDeclaration>()
             .mapNotNull { it.parentDeclaration as? KSClassDeclaration }
             .distinct()
 
         interfaces.forEach { interfaceDecl ->
-            routeGenerator.generateServerRoute(interfaceDecl)
+            routeGenerator.generateServerRoute(interfaceDecl, defaultJwtClass)
         }
 
         val jwtSymbols = resolver.getSymbolsWithAnnotation(JwtType::class.qualifiedName!!).toList()
-        val validJwtSymbols = jwtSymbols.filter { it.validate() }
+        val allJwtSymbols = (jwtSymbols + defaultJwtSymbols).distinct()
+        val validJwtSymbols = allJwtSymbols.filter { it.validate() }
         val jwtClasses = validJwtSymbols.filterIsInstance<KSClassDeclaration>()
 
         jwtGenerator.generate(jwtClasses)
 
-        return (symbols.filterNot { it.validate() } + jwtSymbols.filterNot { it.validate() }).distinct()
+        return (symbols.filterNot { it.validate() } + allJwtSymbols.filterNot { it.validate() }).distinct()
             .toList()
     }
 }

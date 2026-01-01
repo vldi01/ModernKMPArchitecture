@@ -1,7 +1,9 @@
 package com.diachuk.architecture.network.serverprocessor
 
 import com.diachuk.architecture.network.core.AuthJwt
+import com.diachuk.architecture.network.core.DefaultJwtType
 import com.diachuk.architecture.network.core.JwtType
+import com.diachuk.architecture.network.core.NoAuth
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.KSClassDeclaration
@@ -13,6 +15,7 @@ import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.writeTo
 import de.jensklingenberg.ktorfit.http.Body
@@ -29,7 +32,7 @@ class RouteGenerator(
     private val codeGenerator: CodeGenerator
 ) {
 
-    fun generateServerRoute(interfaceDecl: KSClassDeclaration) {
+    fun generateServerRoute(interfaceDecl: KSClassDeclaration, defaultJwtClass: KSClassDeclaration? = null) {
         val packageName = interfaceDecl.packageName.asString()
         val interfaceName = interfaceDecl.simpleName.asString()
         val fileName = "${interfaceName}Routes"
@@ -46,7 +49,7 @@ class RouteGenerator(
             if (function.isAbstract) {
                 val httpMethod = getHttpMethod(function)
                 if (httpMethod != null) {
-                    addRouteBlock(funSpec, function, httpMethod, "impl")
+                    addRouteBlock(funSpec, function, httpMethod, "impl", defaultJwtClass)
                 }
             }
         }
@@ -59,35 +62,48 @@ class RouteGenerator(
         builder: FunSpec.Builder,
         function: KSFunctionDeclaration,
         methodInfo: HttpMethodInfo,
-        implName: String
+        implName: String,
+        defaultJwtClass: KSClassDeclaration?
     ) {
         val authJwtName = AuthJwt::class.qualifiedName!!
         val jwtTypeName = JwtType::class.qualifiedName!!
+        val defaultJwtTypeName = DefaultJwtType::class.qualifiedName!!
+        val noAuthName = NoAuth::class.qualifiedName!!
 
-        val authAnnotation = function.annotations.find {
-            it.annotationType.resolve().declaration.qualifiedName?.asString() == authJwtName
+        val isNoAuth = function.annotations.any {
+             it.annotationType.resolve().declaration.qualifiedName?.asString() == noAuthName
         }
 
         var authName: String? = null
         var authClassName: ClassName? = null
 
-        if (authAnnotation != null) {
-            val arg = authAnnotation.arguments.firstOrNull { it.name?.asString() == "klass" }
-                ?: authAnnotation.arguments.firstOrNull()
+        if (!isNoAuth) {
+            val authAnnotation = function.annotations.find {
+                it.annotationType.resolve().declaration.qualifiedName?.asString() == authJwtName
+            }
 
-            val type = arg?.value as? KSType
-            val decl = type?.declaration
+            if (authAnnotation != null) {
+                val arg = authAnnotation.arguments.firstOrNull { it.name?.asString() == "klass" }
+                    ?: authAnnotation.arguments.firstOrNull()
 
-            if (decl != null) {
-                val isJwtType = decl.annotations.any {
-                    it.annotationType.resolve().declaration.qualifiedName?.asString() == jwtTypeName
+                val type = arg?.value as? KSType
+                val decl = type?.declaration
+
+                if (decl != null) {
+                    val isJwtType = decl.annotations.any {
+                        val qName = it.annotationType.resolve().declaration.qualifiedName?.asString()
+                        qName == jwtTypeName || qName == defaultJwtTypeName
+                    }
+                    if (!isJwtType) {
+                        throw IllegalArgumentException("Class ${decl.qualifiedName?.asString() ?: decl.simpleName.asString()} used in @AuthJwt must be annotated with @JwtType or @DefaultJwtType")
+                    }
+                    authName = decl.simpleName.asString()
+                    // Capture the specific class name for the principal (e.g. UserToken)
+                    authClassName = ClassName(decl.packageName.asString(), decl.qualifiedName?.asString() ?: "")
                 }
-                if (!isJwtType) {
-                    throw IllegalArgumentException("Class ${decl.qualifiedName?.asString() ?: decl.simpleName.asString()} used in @AuthJwt must be annotated with @JwtType")
-                }
-                authName = decl.simpleName.asString()
-                // Capture the specific class name for the principal (e.g. UserToken)
-                authClassName = ClassName(decl.packageName.asString(), decl.qualifiedName?.asString() ?: "")
+            } else if (defaultJwtClass != null) {
+                authName = defaultJwtClass.simpleName.asString()
+                authClassName = defaultJwtClass.toClassName()
             }
         }
 
