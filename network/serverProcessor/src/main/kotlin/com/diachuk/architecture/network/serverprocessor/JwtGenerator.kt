@@ -85,11 +85,23 @@ class JwtGenerator(private val codeGenerator: CodeGenerator) {
                 funSpec.addStatement("val token = %T()", ksClass.toClassName())
             } else {
                 funSpec.addStatement("val decodedJwt = credential.payload as? %T", decodedJwtClass)
-                funSpec.beginControlFlow("if (decodedJwt == null)")
-                funSpec.addStatement("return@validate null")
+                funSpec.addStatement("var payloadString: String? = null")
+
+                funSpec.beginControlFlow("if (decodedJwt != null)")
+                funSpec.addStatement("payloadString = String(java.util.Base64.getUrlDecoder().decode(decodedJwt.payload))")
+                funSpec.nextControlFlow("else")
+                funSpec.addStatement("val authHeader = request.headers[%S]", "Authorization")
+                funSpec.beginControlFlow("if (authHeader != null && authHeader.startsWith(%S))", "Bearer ")
+                funSpec.addStatement("val parts = authHeader.substring(7).trim().split('.')")
+                funSpec.beginControlFlow("if (parts.size == 3)")
+                funSpec.addStatement("payloadString = String(java.util.Base64.getUrlDecoder().decode(parts[1]))")
+                funSpec.endControlFlow()
+                funSpec.endControlFlow()
                 funSpec.endControlFlow()
 
-                funSpec.addStatement("val payloadString = String(java.util.Base64.getUrlDecoder().decode(decodedJwt.payload))")
+                funSpec.beginControlFlow("if (payloadString == null)")
+                funSpec.addStatement("return@validate null")
+                funSpec.endControlFlow()
 
                 funSpec.beginControlFlow("val token = try")
                 // Use the private json property

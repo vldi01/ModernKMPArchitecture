@@ -69,6 +69,7 @@ class RouteGenerator(
         }
 
         var authName: String? = null
+        var authClassName: ClassName? = null
 
         if (authAnnotation != null) {
             val arg = authAnnotation.arguments.firstOrNull { it.name?.asString() == "klass" }
@@ -85,6 +86,8 @@ class RouteGenerator(
                     throw IllegalArgumentException("Class ${decl.qualifiedName?.asString() ?: decl.simpleName.asString()} used in @AuthJwt must be annotated with @JwtType")
                 }
                 authName = decl.simpleName.asString()
+                // Capture the specific class name for the principal (e.g. UserToken)
+                authClassName = ClassName(decl.packageName.asString(), decl.qualifiedName?.asString() ?: "")
             }
         }
 
@@ -237,7 +240,6 @@ class RouteGenerator(
             multipartParts.forEach { param ->
                 val paramName = param.name!!.asString()
                 val type = param.type.resolve()
-                val typeName = type.toTypeName()
                 val qualifiedType = type.declaration.qualifiedName?.asString()
                 val partAnnotation =
                     param.annotations.find { it.annotationType.resolve().declaration.qualifiedName?.asString() == Part::class.qualifiedName }
@@ -286,7 +288,6 @@ class RouteGenerator(
 
             builder.endControlFlow() // End when
 
-            // Collect catch-all parts (empty name in @Part)
             multipartParts.forEach { param ->
                 val paramName = param.name!!.asString()
                 val partAnnotation =
@@ -300,7 +301,6 @@ class RouteGenerator(
 
             builder.endControlFlow() // End while
 
-            // Finalize String params
             multipartParts.forEach { param ->
                 val paramName = param.name!!.asString()
                 val type = param.type.resolve()
@@ -309,7 +309,6 @@ class RouteGenerator(
                     val isNullable = type.isMarkedNullable
                     if (!isNullable) {
                         builder.addStatement("val %L_final = %L ?: \"\"", paramName, paramName)
-                        // If strict, we should return BadRequest if null
                     } else {
                         builder.addStatement("val %L_final = %L", paramName, paramName)
                     }
@@ -317,7 +316,6 @@ class RouteGenerator(
             }
         }
 
-        // Fix args to use _final for Strings in multipart
         val finalArgs = args.map { arg ->
             val isMultipartString =
                 multipartParts.any { it.name!!.asString() == arg && it.type.resolve().declaration.qualifiedName?.asString() == "kotlin.String" }
@@ -325,18 +323,51 @@ class RouteGenerator(
         }
 
         val respondFunc = MemberName("io.ktor.server.response", "respond")
-        builder.addStatement(
-            "call.%M(%L.%L(%L))",
-            respondFunc,
-            implName,
-            function.simpleName.asString(),
-            finalArgs.joinToString(", ")
-        )
+        val withContextFunc = MemberName("kotlinx.coroutines", "withContext")
 
-        builder.endControlFlow()
+        if (authClassName != null) {
+            val principalFunc = MemberName("io.ktor.server.auth", "principal")
+            val callContextClass = ClassName("com.diachuk.architecture.network.core", "CallContext")
+            val httpStatusCode = HttpStatusCode::class.asClassName()
+
+            builder.addStatement(
+                "val principal = call.%M<%T>() ?: return@%L call.%M(%T.Unauthorized)",
+                principalFunc,
+                authClassName,
+                methodInfo.type,
+                respondFunc,
+                httpStatusCode
+            )
+
+            builder.beginControlFlow(
+                "%M(%T(call, principal))",
+                withContextFunc,
+                callContextClass
+            )
+
+            builder.addStatement(
+                "call.%M(%L.%L(%L))",
+                respondFunc,
+                implName,
+                function.simpleName.asString(),
+                finalArgs.joinToString(", ")
+            )
+
+            builder.endControlFlow() // End withContext
+        } else {
+            builder.addStatement(
+                "call.%M(%L.%L(%L))",
+                respondFunc,
+                implName,
+                function.simpleName.asString(),
+                finalArgs.joinToString(", ")
+            )
+        }
+
+        builder.endControlFlow() // End route method
 
         if (authName != null) {
-            builder.endControlFlow()
+            builder.endControlFlow() // End authenticate
         }
     }
 }

@@ -11,6 +11,7 @@ interface UserApi {
     suspend fun getUser(@Path id: Long): User
 
     @GET("users/search")
+    @AuthJwt(JwtEntity.UserToken::class)
     suspend fun searchUsers(
         @Query q: String,
         @Query limit: Int?

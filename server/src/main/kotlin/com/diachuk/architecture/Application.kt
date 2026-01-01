@@ -2,11 +2,11 @@ package com.diachuk.architecture
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.diachuk.architecture.network.api.auth.AuthApi
+import com.diachuk.architecture.auth.AuthApiImpl
 import com.diachuk.architecture.network.api.auth.bindAuthApi
-import com.diachuk.architecture.network.api.user.UserApi
 import com.diachuk.architecture.network.api.user.bindUserApi
 import com.diachuk.architecture.network.server.configureJwt
+import com.diachuk.architecture.user.UserApiImpl
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -57,7 +57,7 @@ fun Application.module() {
             call.respondText("Ktor: Hello World")
         }
 
-        bindUserApi(get<UserApi>())
-        bindAuthApi(get<AuthApi>())
+        bindUserApi(get<UserApiImpl>())
+        bindAuthApi(get<AuthApiImpl>())
     }
 }

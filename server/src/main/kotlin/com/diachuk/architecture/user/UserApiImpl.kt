@@ -1,7 +1,9 @@
 package com.diachuk.architecture.user
 
+import com.diachuk.architecture.network.api.user.JwtEntity
 import com.diachuk.architecture.network.api.user.User
 import com.diachuk.architecture.network.api.user.UserApi
+import com.diachuk.architecture.network.core.getContext
 import org.koin.core.annotation.Single
 
 @Single

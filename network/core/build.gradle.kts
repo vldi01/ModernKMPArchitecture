@@ -28,6 +28,7 @@ kotlin {
         jvmMain {
             dependencies {
                 implementation(libs.ktor.clientOkHttp)
+                implementation(libs.ktor.serverCore)
             }
         }
     }
