@@ -1,7 +1,8 @@
 package com.diachuk.architecture.network.serverprocessor
 
-import com.diachuk.architecture.network.core.DefaultJwtType
-import com.diachuk.architecture.network.core.JwtType
+import com.diachuk.architecture.network.serverprocessor.generators.JwtGenerator
+import com.diachuk.architecture.network.serverprocessor.generators.RouteGenerator
+import com.diachuk.architecture.network.serverprocessor.utils.ProcessorConstants
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
@@ -10,60 +11,58 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.validate
-import de.jensklingenberg.ktorfit.http.DELETE
-import de.jensklingenberg.ktorfit.http.GET
-import de.jensklingenberg.ktorfit.http.HEAD
-import de.jensklingenberg.ktorfit.http.OPTIONS
-import de.jensklingenberg.ktorfit.http.PATCH
-import de.jensklingenberg.ktorfit.http.POST
-import de.jensklingenberg.ktorfit.http.PUT
 
 class ServerProcessor(
-    private val codeGenerator: CodeGenerator,
+    codeGenerator: CodeGenerator,
     private val logger: KSPLogger
 ) : SymbolProcessor {
 
     private val routeGenerator = RouteGenerator(codeGenerator)
+    private val routeParser = RouteParser(logger)
     private val jwtGenerator = JwtGenerator(codeGenerator)
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        val symbols = (
-                resolver.getSymbolsWithAnnotation(GET::class.qualifiedName!!) +
-                        resolver.getSymbolsWithAnnotation(POST::class.qualifiedName!!) +
-                        resolver.getSymbolsWithAnnotation(PUT::class.qualifiedName!!) +
-                        resolver.getSymbolsWithAnnotation(DELETE::class.qualifiedName!!) +
-                        resolver.getSymbolsWithAnnotation(HEAD::class.qualifiedName!!) +
-                        resolver.getSymbolsWithAnnotation(OPTIONS::class.qualifiedName!!) +
-                        resolver.getSymbolsWithAnnotation(PATCH::class.qualifiedName!!)
-                ).distinct()
+        val methods = listOf(
+            ProcessorConstants.GET, ProcessorConstants.POST, ProcessorConstants.PUT,
+            ProcessorConstants.DELETE, ProcessorConstants.HEAD, ProcessorConstants.OPTIONS,
+            ProcessorConstants.PATCH
+        )
 
-        val validSymbols = symbols.filter { it.validate() }.toList()
+        // 1. Collect all symbols annotated with HTTP methods
+        val routeSymbols = methods.flatMap { resolver.getSymbolsWithAnnotation(it) }.distinct()
 
-        val defaultJwtSymbols = resolver.getSymbolsWithAnnotation(DefaultJwtType::class.qualifiedName!!).toList()
+        // 2. Identify Default JWT
+        val defaultJwtSymbols = resolver.getSymbolsWithAnnotation(ProcessorConstants.DEFAULT_JWT_TYPE).toList()
         if (defaultJwtSymbols.size > 1) {
-            throw IllegalArgumentException("Only one class can be annotated with @DefaultJwtType")
+            logger.error("Only one class can be annotated with @DefaultJwtType", defaultJwtSymbols[1])
         }
         val defaultJwtClass = defaultJwtSymbols.firstOrNull() as? KSClassDeclaration
-        if (defaultJwtSymbols.isNotEmpty() && defaultJwtClass == null) {
-            logger.error("@DefaultJwtType must be applied to a class", defaultJwtSymbols.first())
-        }
 
-        val interfaces = validSymbols.filterIsInstance<KSFunctionDeclaration>()
+        // 3. Process Routes
+        // Filter for valid symbols and group by parent interface
+        val interfaces = routeSymbols
+            .filter { it.validate() }
+            .filterIsInstance<KSFunctionDeclaration>()
             .mapNotNull { it.parentDeclaration as? KSClassDeclaration }
             .distinct()
 
         interfaces.forEach { interfaceDecl ->
-            routeGenerator.generateServerRoute(interfaceDecl, defaultJwtClass)
+            val serviceDef = routeParser.parse(interfaceDecl, defaultJwtClass)
+            if (serviceDef != null) {
+                routeGenerator.generate(serviceDef)
+            }
         }
 
-        val jwtSymbols = resolver.getSymbolsWithAnnotation(JwtType::class.qualifiedName!!).toList()
-        val allJwtSymbols = (jwtSymbols + defaultJwtSymbols).distinct()
-        val validJwtSymbols = allJwtSymbols.filter { it.validate() }
-        val jwtClasses = validJwtSymbols.filterIsInstance<KSClassDeclaration>()
+        // 4. Process JWTs
+        val jwtSymbols = resolver.getSymbolsWithAnnotation(ProcessorConstants.JWT_TYPE).toList()
+        val allJwtSymbols = (jwtSymbols + defaultJwtSymbols).distinct().filterIsInstance<KSClassDeclaration>()
 
-        jwtGenerator.generate(jwtClasses)
+        if (allJwtSymbols.isNotEmpty()) {
+             // We pass all valid JWT symbols to the generator
+             jwtGenerator.generate(allJwtSymbols.filter { it.validate() })
+        }
 
-        return (symbols.filterNot { it.validate() } + allJwtSymbols.filterNot { it.validate() }).distinct()
-            .toList()
+        // Return invalid symbols to be processed in the next round
+        return (routeSymbols + allJwtSymbols).filterNot { it.validate() }.toList()
     }
 }
