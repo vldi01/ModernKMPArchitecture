@@ -22,6 +22,4 @@ fun DependencyHandlerScope.addAllKsp(dependencyNotation: Any) {
     add("kspIosArm64", dependencyNotation)
     add("kspIosSimulatorArm64", dependencyNotation)
     add("kspJvm", dependencyNotation)
-    add("kspJs", dependencyNotation)
-    add("kspWasmJs", dependencyNotation)
 }

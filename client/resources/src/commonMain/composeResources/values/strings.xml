@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">ModernArchitecture</string>
+    
+    <!-- Auth Common -->
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    
+    <!-- Login Screen -->
+    <string name="login">Login</string>
+    <string name="logging_in">Logging in...</string>
+    <string name="register_hint">Don\'t have an account? Register</string>
+
+    <!-- Register Screen -->
+    <string name="register">Register</string>
+    <string name="name">Name</string>
+    <string name="registering">Registering...</string>
+    <string name="login_hint">Already have an account? Login</string>
+
+    <!-- Home Screen -->
+    <string name="home_title">Home</string>
+    <string name="logout">Logout</string>
+    <string name="error_loading_users">Error loading users</string>
+    <string name="no_users_found">No users found</string>
+</resources>
