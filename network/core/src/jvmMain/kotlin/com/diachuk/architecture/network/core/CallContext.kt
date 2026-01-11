@@ -12,7 +12,7 @@ data class CallContext<TOKEN : Any>(
     companion object Key : CoroutineContext.Key<CallContext<*>>
 }
 
-suspend inline fun <reified T : Any> Api.getContext(): CallContext<T> {
+suspend inline fun <reified T : Any> getContext(): CallContext<T> {
     val element = currentCoroutineContext()[CallContext.Key]
         ?: throw IllegalStateException("No CallContext found in current coroutine")
 
@@ -27,4 +27,4 @@ suspend inline fun <reified T : Any> Api.getContext(): CallContext<T> {
     return element as CallContext<T>
 }
 
-suspend fun Api.getCall(): RoutingCall = getContext<Any>().call
+suspend fun getCall(): RoutingCall = getContext<Any>().call
